@@ -6,6 +6,7 @@ import server_communication as sc
 import path_planning as pp
 import position_detection as pd
 
+# 전역 변수들
 global lot_number
 global map_matrix
 global position 
