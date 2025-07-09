@@ -26,6 +26,7 @@ module_path = f"GUI.lot_{lot_number}.navi"
 GUI_module = importlib.import_module(module_path)
 map_matrix = getattr(GUI_module, 'map_matrix')     # from GUI.lot_1.navi import map_matrix
 Navi = getattr(GUI_module, 'Navi')                 # from GUI.lot_1.navi import Navi
+app = QApplication(sys.argv)
 window = Navi()
 
 
@@ -36,6 +37,5 @@ window = Navi()
 
 
 # GUI 내비게이션 출력
-app = QApplication(sys.argv)
 window.show()
 sys.exit(app.exec())
