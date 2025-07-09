@@ -30,6 +30,7 @@ Navi = getattr(GUI_module, 'Navi')                 # from GUI.lot_1.navi import 
 
 
 
+
 # GUI 내비게이션 출력
 app = QApplication(sys.argv)
 window = Navi()
