@@ -28,6 +28,8 @@ map_matrix = getattr(GUI_module, 'map_matrix')     # from GUI.lot_1.navi import 
 Navi = getattr(GUI_module, 'Navi')                 # from GUI.lot_1.navi import Navi
 window = Navi()
 
+
+
 # Thread run : 위치 추정 + path_planning + GUI 새로고침
 # window.user_function() 으로 새로고침
 
