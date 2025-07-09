@@ -6,6 +6,7 @@ import server_communication as sc
 import path_planning as pp
 import position_detection as pd
 
+# 전역 변수들
 global lot_number
 global map_matrix
 global position 
@@ -13,7 +14,7 @@ global path
 global empty
 
 # 주차장 인식
-lot_number = 1 ##input("원하는 lot 번호를 입력하세요 (예: 1, 2): ")
+lot_number = 1  # input("원하는 lot 번호를 입력하세요 (예: 1, 2): ")
 
 
 # 서버에 주차장 정보 요청
