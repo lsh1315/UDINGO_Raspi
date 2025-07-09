@@ -14,6 +14,7 @@ global path
 global empty
 
 # 주차장 인식
+# UWB 통신으로 ID를 받아와서 판단
 lot_number = 1  # input("원하는 lot 번호를 입력하세요 (예: 1, 2): ")
 
 
