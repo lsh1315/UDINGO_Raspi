@@ -9,9 +9,9 @@ import position_detection as pd
 # 전역 변수들
 global lot_number
 global map_matrix
+global user_preference
 global position 
 global path
-global empty
 
 # 주차장 인식
 # UWB 통신으로 ID를 받아와서 판단
