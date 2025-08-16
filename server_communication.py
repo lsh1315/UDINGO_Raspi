@@ -12,3 +12,21 @@
 ##      Input : self.str
 ##      Output : self.Non_empty_spot 좌표들 저장
 ##########################################################
+
+import socket
+
+HOST = '3.39.40.177'  # 서버 IP
+PORT = 5000           # 서버 포트
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+    print(f"서버에 연결됨: {HOST}:{PORT}")
+
+    try:
+        while True:
+            data = s.recv(1024)
+            if not data:
+                break
+            print(f"[수신] {data.decode(errors='ignore').strip()}")
+    except Exception as e:
+        print("에러 발생:", e)
