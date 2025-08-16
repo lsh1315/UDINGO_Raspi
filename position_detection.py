@@ -32,9 +32,9 @@ def trilaterate(distances):
 
     # Anchor coordinates
     x1, y1 = 0, 0
-    x2, y2 = 1200, 0
-    x3, y3 = 0, 600
-    x4, y4 = 1200, 600
+    x2, y2 = 590, 0
+    x3, y3 = 0, 1190
+    x4, y4 = 590, 1190
 
     # Set up the system of linear equations Ax = b
     # We linearize the system by creating equations from all 6 pairs of anchors.
