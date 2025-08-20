@@ -1,7 +1,18 @@
 <RCC>
   <qresource prefix="parkinglot">
-    <file>004.png</file>
     <file>003.png</file>
-    <file>prototype.jpg</file>
+  </qresource>
+  <qresource prefix="preference">
+    <file>001.png</file>
+    <file>002.png</file>
+  </qresource>
+  <qresource prefix="car">
+    <file>free-icon-car-1047003.png</file>
+  </qresource>
+  <qresource prefix="button">
+    <file>KakaoTalk_20250820_112752795.png</file>
+    <file>KakaoTalk_20250820_112752795_01.png</file>
+    <file>KakaoTalk_20250820_112752795_02.png</file>
+    <file>KakaoTalk_20250820_112752795_03.png</file>
   </qresource>
 </RCC>
