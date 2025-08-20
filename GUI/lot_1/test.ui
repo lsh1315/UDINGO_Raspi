@@ -48,10 +48,10 @@
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="preference1">
-       <widget class="QLabel" name="background">
+       <widget class="QLabel" name="background1">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -178,6 +178,93 @@
         </property>
        </widget>
       </widget>
+      <widget class="QWidget" name="preference2">
+       <widget class="QLabel" name="background2">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>1280</width>
+          <height>800</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>1280</width>
+          <height>800</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="resources.qrc">:/preference/002.png</pixmap>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="Entrance">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>290</y>
+          <width>391</width>
+          <height>101</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>36</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(112, 177, 186);</string>
+        </property>
+        <property name="text">
+         <string>Entrance</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="Exit">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>410</y>
+          <width>391</width>
+          <height>101</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>36</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(112, 177, 186);</string>
+        </property>
+        <property name="text">
+         <string>Exit</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="Mall">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>530</y>
+          <width>391</width>
+          <height>101</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>36</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(112, 177, 186);</string>
+        </property>
+        <property name="text">
+         <string>Mall</string>
+        </property>
+       </widget>
+      </widget>
       <widget class="QWidget" name="navi">
        <property name="minimumSize">
         <size>
@@ -262,34 +349,50 @@
  </resources>
  <connections>
   <connection>
+   <sender>big</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_type()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>480</x>
+     <y>388</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>-107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Entrance</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_near()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>491</x>
+     <y>346</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>470</x>
+     <y>-56</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>terminate</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>terminate()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1231</x>
-     <y>773</y>
+     <x>1229</x>
+     <y>765</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1254</x>
-     <y>800</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>big</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>next_page()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>441</x>
-     <y>377</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>436</x>
-     <y>-88</y>
+     <x>1531</x>
+     <y>751</y>
     </hint>
    </hints>
   </connection>
@@ -297,6 +400,7 @@
  <slots>
   <signal>wefi()</signal>
   <slot>terminate()</slot>
-  <slot>next_page()</slot>
+  <slot>save_type()</slot>
+  <slot>save_near()</slot>
  </slots>
 </ui>

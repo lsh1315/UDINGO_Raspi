@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'testbDWPDl.ui'
+## Form generated from reading UI file 'testkxgyCW.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -38,11 +38,11 @@ class Ui_MainWindow(object):
         self.stackedWidget.setStyleSheet(u"")
         self.preference1 = QWidget()
         self.preference1.setObjectName(u"preference1")
-        self.background = QLabel(self.preference1)
-        self.background.setObjectName(u"background")
-        self.background.setGeometry(QRect(0, 0, 1280, 800))
-        self.background.setMinimumSize(QSize(1280, 800))
-        self.background.setPixmap(QPixmap(u":/preference/001.png"))
+        self.background1 = QLabel(self.preference1)
+        self.background1.setObjectName(u"background1")
+        self.background1.setGeometry(QRect(0, 0, 1280, 800))
+        self.background1.setMinimumSize(QSize(1280, 800))
+        self.background1.setPixmap(QPixmap(u":/preference/001.png"))
         self.elec = QPushButton(self.preference1)
         self.elec.setObjectName(u"elec")
         self.elec.setGeometry(QRect(210, 300, 151, 151))
@@ -76,6 +76,31 @@ class Ui_MainWindow(object):
         self.small.setIcon(icon3)
         self.small.setIconSize(QSize(150, 150))
         self.stackedWidget.addWidget(self.preference1)
+        self.preference2 = QWidget()
+        self.preference2.setObjectName(u"preference2")
+        self.background2 = QLabel(self.preference2)
+        self.background2.setObjectName(u"background2")
+        self.background2.setGeometry(QRect(0, 0, 1280, 800))
+        self.background2.setMinimumSize(QSize(1280, 800))
+        self.background2.setPixmap(QPixmap(u":/preference/002.png"))
+        self.Entrance = QPushButton(self.preference2)
+        self.Entrance.setObjectName(u"Entrance")
+        self.Entrance.setGeometry(QRect(200, 290, 391, 101))
+        font = QFont()
+        font.setPointSize(36)
+        self.Entrance.setFont(font)
+        self.Entrance.setStyleSheet(u"background-color: rgb(112, 177, 186);")
+        self.Exit = QPushButton(self.preference2)
+        self.Exit.setObjectName(u"Exit")
+        self.Exit.setGeometry(QRect(200, 410, 391, 101))
+        self.Exit.setFont(font)
+        self.Exit.setStyleSheet(u"background-color: rgb(112, 177, 186);")
+        self.Mall = QPushButton(self.preference2)
+        self.Mall.setObjectName(u"Mall")
+        self.Mall.setGeometry(QRect(200, 530, 391, 101))
+        self.Mall.setFont(font)
+        self.Mall.setStyleSheet(u"background-color: rgb(112, 177, 186);")
+        self.stackedWidget.addWidget(self.preference2)
         self.navi = QWidget()
         self.navi.setObjectName(u"navi")
         self.navi.setMinimumSize(QSize(1280, 800))
@@ -105,10 +130,11 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
+        self.big.clicked.connect(MainWindow.save_type)
+        self.Entrance.clicked.connect(MainWindow.save_near)
         self.terminate.clicked.connect(MainWindow.terminate)
-        self.big.clicked.connect(MainWindow.next_page)
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -116,11 +142,15 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.background.setText("")
+        self.background1.setText("")
         self.elec.setText("")
         self.big.setText("")
         self.handicap.setText("")
         self.small.setText("")
+        self.background2.setText("")
+        self.Entrance.setText(QCoreApplication.translate("MainWindow", u"Entrance", None))
+        self.Exit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
+        self.Mall.setText(QCoreApplication.translate("MainWindow", u"Mall", None))
         self.car.setText("")
         self.map.setText("")
         self.terminate.setText(QCoreApplication.translate("MainWindow", u"\uc885\ub8cc", None))
