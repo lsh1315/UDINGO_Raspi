@@ -82,6 +82,8 @@ class MainWindow(QMainWindow):
         #     (275, 400), (275, 370), (275, 340), (275, 310), (275, 280),
         #     (275, 250),
         # ]
+
+        # self.path = self.transform_points(self.apply_correction_with_swap(path_prev))
         self.path = self.transform_points(path_prev)
 
         # path에 담긴 모든 좌표에 빨간 점 출력
@@ -109,6 +111,60 @@ class MainWindow(QMainWindow):
         출력: [(x', y'), ...]
         """
         return [(10.43 * y + 29.68, 11.78 * x + 53.98) for x, y in points]
+    
+    def correction(self, original_position):
+        """주어진 원본 좌표(row, col)를 특정 조건에 따라 보정합니다."""
+        row, col = original_position
+
+        # (이전과 동일한 보정 로직)
+        if row <= 9:
+            if col <= 24:
+                row, col = 9, 24
+            elif 24 < col < 94:
+                row = 9
+            else:
+                row, col = 9, 94
+        elif 9 < row < 54:
+            if col <= 24:
+                col = 24
+            elif 24 < col < row + 13 and col < 76 - row:
+                col = 24
+            elif row < 30 and col > row + 15 and col > 101 - row:
+                row = 9
+            elif col > 105 - row and col > row + 42 and col < 94:
+                col = 94
+            elif col >= 94:
+                col = 94
+            elif row > 33 and col < 80 - row and col < row + 38:
+                row = 54
+            else:
+                return original_position
+        elif 54 <= row < 60:
+            if col <= 24:
+                row, col = 54, 24
+            elif 24 < col < 94:
+                row = 54
+            else:
+                row, col = 54, 94
+        else:
+            return original_position
+
+        return (row, col)
+
+
+    def apply_correction_with_swap(self, path):
+        """
+        경로의 각 좌표(x, y)를 (y, x) 순서로 바꿔 correction() 함수에 적용합니다.
+
+        Args:
+            path (list): (x, y) 튜플들이 담긴 리스트.
+
+        Returns:
+            list: 모든 좌표에 보정이 적용된 새로운 리스트.
+        """
+        # for x, y in path: 루프를 돌면서 각 좌표를 x와 y로 받음
+        # correction((y, x)): 받은 x, y의 순서를 바꿔서 함수에 전달
+        return [self.correction((y, x)) for x, y in path]
 
 
 path_prev = [

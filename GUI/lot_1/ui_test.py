@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'testkxgyCW.ui'
+## Form generated from reading UI file 'testDvvWSL.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -119,6 +119,10 @@ class Ui_MainWindow(object):
         self.terminate = QPushButton(self.navi)
         self.terminate.setObjectName(u"terminate")
         self.terminate.setGeometry(QRect(1190, 740, 75, 41))
+        font1 = QFont()
+        font1.setFamilies([u"\ud734\uba3c\ubaa8\uc74cT"])
+        font1.setPointSize(10)
+        self.terminate.setFont(font1)
         self.terminate.setStyleSheet(u"background-color:rgb(211, 0, 0);")
         self.stackedWidget.addWidget(self.navi)
         self.map.raise_()
