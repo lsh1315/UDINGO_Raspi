@@ -79,17 +79,19 @@ class MainWindow(QMainWindow):
         self._sync_overlay_geometry()
         self.overlay.set_points(self.path)
         self.overlay.show()
-
-        # 타이머를 사용하여 moving 함수를 주기적으로 호출
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.moving)
-        self.timer.start(50)  # 50ms마다 호출 (초당 20회)
-
-    def moving(self):
-        # 차 위치 옮기기 Test
-        self.pos_y -= 10
         self.ui.car.move(self.pos_x, self.pos_y)
         self.ui.car.setVisible(True)
+
+    #     # 타이머를 사용하여 moving 함수를 주기적으로 호출
+    #     self.timer = QTimer(self)
+    #     self.timer.timeout.connect(self.moving)
+    #     self.timer.start(50)  # 50ms마다 호출 (초당 20회)
+
+    # def moving(self):
+    #     # 차 위치 옮기기 Test
+    #     self.pos_y -= 10
+    #     self.ui.car.move(self.pos_x, self.pos_y)
+    #     self.ui.car.setVisible(True)
 
     def transform_points(self, points):
         """
@@ -110,11 +112,10 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     navi = MainWindow()
 
-    navi.pos_x = 200
-    navi.pos_y = 550
+    pos_row = 54
+    pos_col = 25
     
     path_prev = [
-        (58, 24), (57, 24), (56, 24), (55, 24), (54, 24),
         (54, 25), (54, 26), (54, 27), (54, 28), (54, 29),
         (54, 30), (54, 31), (54, 32), (54, 33), (54, 34),
         (54, 35), (54, 36), (54, 37), (54, 38), (54, 39),
@@ -126,7 +127,9 @@ if __name__ == "__main__":
         (54, 65), (53, 65), (52, 65), (51, 65), (50, 65),
         (49, 65), (48, 65)
     ]
-    
+
+    navi.pos_x = 10.43 * pos_col + 29.68 - 31
+    navi.pos_y = 11.78 * pos_row + 53.98
     navi.path = navi.transform_points(path_prev)
 
     navi.showFullScreen()  # 전체 화면

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'navireGmSJ.ui'
+## Form generated from reading UI file 'navizyEnbN.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -107,9 +107,11 @@ class Ui_MainWindow(object):
         self.navi.setStyleSheet(u"")
         self.car = QLabel(self.navi)
         self.car.setObjectName(u"car")
-        self.car.setGeometry(QRect(200, 540, 151, 131))
+        self.car.setGeometry(QRect(240, 560, 61, 131))
         self.car.setPixmap(QPixmap(u":/car/car.png"))
-        self.car.setScaledContents(True)
+        self.car.setScaledContents(False)
+        self.car.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.car.setIndent(-1)
         self.map = QLabel(self.navi)
         self.map.setObjectName(u"map")
         self.map.setGeometry(QRect(0, 0, 1280, 800))
@@ -138,7 +140,7 @@ class Ui_MainWindow(object):
         self.Entrance.clicked.connect(MainWindow.save_near)
         self.terminate.clicked.connect(MainWindow.terminate)
 
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
