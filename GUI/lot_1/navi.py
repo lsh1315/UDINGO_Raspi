@@ -1,6 +1,6 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
-from PySide6.QtGui import QPainter, QPen, QBrush
+from PySide6.QtGui import QPainter, QPen, QBrush, QPixmap
 from PySide6.QtCore import Qt, QPoint, QTimer
 from ui_navi import Ui_MainWindow  # pyside6-uic로 생성된 파일
 from typing import List, Tuple
@@ -48,6 +48,10 @@ class MainWindow(QMainWindow):
         self.pos_x = 0
         self.pos_y = 0
 
+        # 이전 위치를 담을 좌표 (입구 기준 초기화)
+        self.prev_x = 210
+        self.prev_y = 691
+
         # 찍을 경로 좌표
         self.path = []
 
@@ -80,28 +84,53 @@ class MainWindow(QMainWindow):
         self.overlay.set_points(self.path)
         self.overlay.show()
         self.ui.car.move(self.pos_x, self.pos_y)
+
+        # 타이머를 사용하여 moving 함수를 주기적으로 호출
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.moving)
+        self.timer.start(50)  # 50ms마다 호출 (초당 20회)
+
+    def moving(self):
+
+        # 차 위치 옮기기 Test
+        # self.pos_x += 10
+
+        dx = self.pos_x - self.prev_x
+        dy = self.pos_y - self.prev_y
+        if dx > 0 and dy == 0:
+            self.ui.car.setPixmap(QPixmap(u":/car/car_90.png"))
+        elif dx < 0 and dy == 0:
+            self.ui.car.setPixmap(QPixmap(u":/car/car_270.png"))
+        elif dx == 0 and dy < 0:
+            self.ui.car.setPixmap(QPixmap(u":/car/car_0.png"))
+        elif dx == 0 and dy > 0:
+            self.ui.car.setPixmap(QPixmap(u":/car/car_180.png"))
+        else:
+            if abs(dx) > abs(dy):
+                if dx > 0 :
+                    self.ui.car.setPixmap(QPixmap(u":/car/car_90.png"))
+                else:
+                    self.ui.car.setPixmap(QPixmap(u":/car/car_270.png"))
+            else:
+                if dy > 0 :
+                    self.ui.car.setPixmap(QPixmap(u":/car/car_180.png"))
+                else : 
+                    self.ui.car.setPixmap(QPixmap(u":/car/car_0.png"))
+
+        self.ui.car.move(self.pos_x, self.pos_y)
         self.ui.car.setVisible(True)
+ 
+        self.prev_x = self.pos_x
+        self.prev_y = self.pos_y
 
-    #     # 타이머를 사용하여 moving 함수를 주기적으로 호출
-    #     self.timer = QTimer(self)
-    #     self.timer.timeout.connect(self.moving)
-    #     self.timer.start(50)  # 50ms마다 호출 (초당 20회)
+    def transfrom_row2y(self, row):
+        return 11.78 * row + 53.98
 
-    # def moving(self):
-    #     # 차 위치 옮기기 Test
-    #     self.pos_y -= 10
-    #     self.ui.car.move(self.pos_x, self.pos_y)
-    #     self.ui.car.setVisible(True)
+    def transfrom_col2x(self, col):
+        return 10.43 * col + 29.68
 
     def transform_points(self, points):
-        """
-        입력: [(x, y), ...] 형태의 좌표 리스트
-        처리: (x, y) -> (y, x)로 교환 후
-            x' = 10.43 * (y) + 29.68
-            y' = 11.78 * (x) + 53.98
-        출력: [(x', y'), ...]
-        """
-        return [(10.43 * y + 29.68, 11.78 * x + 53.98) for x, y in points]
+        return [(self.transfrom_col2x(col), self.transfrom_row2y(row)) for row, col in points]
 
 
 if __name__ == "__main__":
@@ -128,8 +157,8 @@ if __name__ == "__main__":
         (49, 65), (48, 65)
     ]
 
-    navi.pos_x = 10.43 * pos_col + 29.68 - 31
-    navi.pos_y = 11.78 * pos_row + 53.98
+    navi.pos_x = navi.transfrom_col2x(pos_col) - 70  # imgae offset
+    navi.pos_y = navi.transfrom_row2y(pos_row) - 70
     navi.path = navi.transform_points(path_prev)
 
     navi.showFullScreen()  # 전체 화면

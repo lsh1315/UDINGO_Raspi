@@ -278,9 +278,9 @@
        <widget class="QLabel" name="car">
         <property name="geometry">
          <rect>
-          <x>240</x>
+          <x>210</x>
           <y>560</y>
-          <width>61</width>
+          <width>131</width>
           <height>131</height>
          </rect>
         </property>
@@ -288,10 +288,10 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/car/car.png</pixmap>
+         <pixmap resource="resources.qrc">:/car/car_0.png</pixmap>
         </property>
         <property name="scaledContents">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>

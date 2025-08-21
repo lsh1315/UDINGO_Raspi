@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'navizyEnbN.ui'
+## Form generated from reading UI file 'naviHzDeDd.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -107,9 +107,9 @@ class Ui_MainWindow(object):
         self.navi.setStyleSheet(u"")
         self.car = QLabel(self.navi)
         self.car.setObjectName(u"car")
-        self.car.setGeometry(QRect(240, 560, 61, 131))
-        self.car.setPixmap(QPixmap(u":/car/car.png"))
-        self.car.setScaledContents(False)
+        self.car.setGeometry(QRect(210, 560, 131, 131))
+        self.car.setPixmap(QPixmap(u":/car/car_0.png"))
+        self.car.setScaledContents(True)
         self.car.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.car.setIndent(-1)
         self.map = QLabel(self.navi)

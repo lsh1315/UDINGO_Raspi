@@ -7,8 +7,10 @@
     <file>002.png</file>
   </qresource>
   <qresource prefix="car">
-    <file>car.png</file>
-    <file>car.png</file>
+    <file>car_0.png</file>
+    <file>car_90.png</file>
+    <file>car_180.png</file>
+    <file>car_270.png</file>
   </qresource>
   <qresource prefix="button">
     <file>button_elec.png</file>
