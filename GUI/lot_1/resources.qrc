@@ -7,12 +7,12 @@
     <file>002.png</file>
   </qresource>
   <qresource prefix="car">
-    <file>free-icon-car-1047003.png</file>
+    <file>car.png</file>
   </qresource>
   <qresource prefix="button">
-    <file>KakaoTalk_20250820_112752795.png</file>
-    <file>KakaoTalk_20250820_112752795_01.png</file>
-    <file>KakaoTalk_20250820_112752795_02.png</file>
-    <file>KakaoTalk_20250820_112752795_03.png</file>
+    <file>button_elec.png</file>
+    <file>button_handicap.png</file>
+    <file>button_nomal.png</file>
+    <file>button_small.png</file>
   </qresource>
 </RCC>
