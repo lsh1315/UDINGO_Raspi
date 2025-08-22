@@ -6,7 +6,7 @@ from GUI.lot_1.map import Map
 from GUI.lot_1.navi import MainWindow
 # import server_communication as sc
 # import position_detection as pd
-from .path_planning import PathPlanning
+from path_planning import PathPlanning
 
 global user_preference
 global position 
@@ -39,29 +39,19 @@ Path = PathPlanning()
 # Thread run : 위치 추정 + path_planning + GUI 새로고침
 # window.user_function() 으로 새로고침
 
-pos_row = 54
-pos_col = 25
+navi.showFullScreen()
 
-Path.recommend_parking(Map.copy_map, (pos_row,pos_col), (2,4))
-Path.astar(Map.copy_map, (pos_row,pos_col), Path.goal)
+pos_row = 36
+pos_col = 24
+user_preference = (4,3)
 
-path_prev = [
-    (54, 25), (54, 26), (54, 27), (54, 28), (54, 29),
-    (54, 30), (54, 31), (54, 32), (54, 33), (54, 34),
-    (54, 35), (54, 36), (54, 37), (54, 38), (54, 39),
-    (54, 40), (54, 41), (54, 42), (54, 43), (54, 44),
-    (54, 45), (54, 46), (54, 47), (54, 48), (54, 49),
-    (54, 50), (54, 51), (54, 52), (54, 53), (54, 54),
-    (54, 55), (54, 56), (54, 57), (54, 58), (54, 59),
-    (54, 60), (54, 61), (54, 62), (54, 63), (54, 64),
-    (54, 65), (53, 65), (52, 65), (51, 65), (50, 65),
-    (49, 65), (48, 65)
-]
+Path.recommend_parking(Parking_lot.copy_map, (pos_row,pos_col), user_preference)
+Path.astar(Parking_lot.copy_map, (pos_row,pos_col), Path.goal)
 
-navi.pos_x = navi.transfrom_col2x(pos_col) - 70  # imgae offset
-navi.pos_y = navi.transfrom_row2y(pos_row) - 70
-navi.path = navi.transform_points(path_prev)
+navi.pos_x = navi.transfrom_col2x(pos_col) - 65  # imgae offset
+navi.pos_y = navi.transfrom_row2y(pos_row) - 65
+navi.path = navi.transform_points(Path.path)
 
 # GUI 내비게이션 출력
-navi.showFullScreen()
+
 sys.exit(app.exec())
