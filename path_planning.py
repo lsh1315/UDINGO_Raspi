@@ -7,35 +7,22 @@
 ##
 ## 멤버 함수 :
 ## 1. 추천 주차 구역 선정 알고리즘
-##      Input : 주차장 배열, 현재 위치 , 빈자리 , 사용자 선호도
+##      Input : 주차장 배열, 현재 위치 , 사용자 선호도
 ##      Output : self.goal 좌표 수정
 ## 2. A* 알고리즘
 ##      Input : 주차장 배열, 현재 위치 , 목적지
 ##      Output : self.path 좌표들 저장
 ###########################################################
 
-"""
-규약
-- 맵: lot[y][x] (2D 리스트). 1=벽/장애물, 2~5=주차칸, 6=입구, 7=출구, 8=마트
-- 외부 인터페이스: (x, y)  // main과 GUI 에서 쓰는 순서
-- 내부 연산은 (y, x)로 처리하고, 입출력 시 (x, y)로 변환
-
-특징
-- C 코드와 동일한 A*: open 리스트 선형 검색, 4방향, 맨해튼 휴리스틱, 부모 포인터.
-- ARRAY_CAPACITY=100 가드 동일.
-- 좌표 혼동 방지: A*가 첫 시도 실패 시 (x,y)<->(y,x) 스왑 재시도.
-"""
-
 from __future__ import annotations
-from typing import List, Tuple, Iterable, Optional
+from typing import List, Tuple
 
 INF = 99999
-ARRAY_CAPACITY_DEFAULT = 100
-
 Coord = Tuple[int, int]
 
 def _manhattan(a: Coord, b: Coord) -> int:
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
 
 class PathPlanning:
     def __init__(self) -> None:
@@ -113,8 +100,7 @@ class PathPlanning:
         self,
         lot: List[List[int]],
         current_pos: Coord,
-        goal: Coord,
-        array_capacity: int = ARRAY_CAPACITY_DEFAULT,
+        goal: Coord
     ) -> int:
         rows = len(lot)
         cols = len(lot[0]) if rows else 0
@@ -162,9 +148,6 @@ class PathPlanning:
                 rev: List[Coord] = []
                 y, x = ty, tx
                 while y != -1 and x != -1:
-                    if len(rev) >= array_capacity:
-                        self.path = []
-                        return 0
                     rev.append((y, x))
                     y, x = py[y][x], px[y][x]
                 rev.reverse()
