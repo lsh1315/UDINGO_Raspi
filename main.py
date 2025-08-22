@@ -6,7 +6,7 @@ from GUI.lot_1.map import Map
 from GUI.lot_1.navi import MainWindow
 # import server_communication as sc
 # import position_detection as pd
-# import path_planning as pp
+from .path_planning import PathPlanning
 
 global user_preference
 global position 
@@ -17,6 +17,8 @@ Parking_lot.map_reset()
 
 app = QApplication(sys.argv)
 navi = MainWindow()
+
+Path = PathPlanning()
 
 # 전역 변수들
 # global lot_number
@@ -39,6 +41,9 @@ navi = MainWindow()
 
 pos_row = 54
 pos_col = 25
+
+Path.recommend_parking(Map.copy_map, (pos_row,pos_col), (2,4))
+Path.astar(Map.copy_map, (pos_row,pos_col), Path.goal)
 
 path_prev = [
     (54, 25), (54, 26), (54, 27), (54, 28), (54, 29),
