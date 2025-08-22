@@ -364,15 +364,63 @@
    <sender>nomal</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>save_type()</slot>
+   <slot>save_type4()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>480</x>
-     <y>388</y>
+     <x>487</x>
+     <y>384</y>
     </hint>
     <hint type="destinationlabel">
-     <x>490</x>
+     <x>498</x>
+     <y>-99</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>elec</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_type5()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>318</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>367</x>
+     <y>-25</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>small</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_type2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>487</x>
+     <y>573</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>598</x>
      <y>-107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>handicap</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_type3()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>335</x>
+     <y>558</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>434</x>
+     <y>-47</y>
     </hint>
    </hints>
   </connection>
@@ -380,15 +428,47 @@
    <sender>Entrance</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>save_near()</slot>
+   <slot>save_near1()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>491</x>
-     <y>346</y>
+     <x>485</x>
+     <y>339</y>
     </hint>
     <hint type="destinationlabel">
-     <x>470</x>
-     <y>-56</y>
+     <x>517</x>
+     <y>-33</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Exit</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_near2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>575</x>
+     <y>466</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>656</x>
+     <y>-83</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Mall</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_near3()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>504</x>
+     <y>593</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>569</x>
+     <y>-65</y>
     </hint>
    </hints>
   </connection>
@@ -399,12 +479,12 @@
    <slot>terminate()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1229</x>
-     <y>765</y>
+     <x>1249</x>
+     <y>776</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1531</x>
-     <y>751</y>
+     <x>1258</x>
+     <y>893</y>
     </hint>
    </hints>
   </connection>
@@ -412,7 +492,12 @@
  <slots>
   <signal>wefi()</signal>
   <slot>terminate()</slot>
-  <slot>save_type()</slot>
-  <slot>save_near()</slot>
+  <slot>save_near1()</slot>
+  <slot>save_near2()</slot>
+  <slot>save_near3()</slot>
+  <slot>save_type2()</slot>
+  <slot>save_type3()</slot>
+  <slot>save_type4()</slot>
+  <slot>save_type5()</slot>
  </slots>
 </ui>

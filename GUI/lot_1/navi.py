@@ -2,9 +2,9 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 from PySide6.QtGui import QPainter, QPen, QBrush, QPixmap
 from PySide6.QtCore import Qt, QPoint, QTimer
-from ui_navi import Ui_MainWindow  # pyside6-uic로 생성된 파일
+from .ui_navi import Ui_MainWindow  # pyside6-uic로 생성된 파일
 from typing import List, Tuple
-from map import Map
+from .map import Map
 
 class DotOverlay(QWidget):
     """stackedWidget 위에 덮는 투명 캔버스: points에 있는 좌표를 빨간 점으로 그림"""
@@ -55,6 +55,13 @@ class MainWindow(QMainWindow):
         # 찍을 경로 좌표
         self.path = []
 
+        # 사용자 선호도
+        self.type = 0
+        self.near = 0
+
+        # GUI 업데이트 flag
+        self.flag = 0
+
         # stackedWidget 전체를 덮는 투명 오버레이
         self.overlay = DotOverlay(self.ui.stackedWidget)
         self.overlay.setGeometry(self.ui.stackedWidget.rect())
@@ -72,19 +79,46 @@ class MainWindow(QMainWindow):
     def terminate(self):
         self.close()
 
-    def save_type(self):
+    def save_type2(self):
+        self.type = 2
+        self.ui.stackedWidget.setCurrentIndex(1)
+        self.overlay.clear()
+    
+    def save_type3(self):
+        self.type = 3
         self.ui.stackedWidget.setCurrentIndex(1)
         self.overlay.clear()
 
-    def save_near(self):
+    def save_type4(self):
+        self.type = 4
+        self.ui.stackedWidget.setCurrentIndex(1)
+        self.overlay.clear()
+
+    def save_type5(self):
+        self.type = 5
+        self.ui.stackedWidget.setCurrentIndex(1)
+        self.overlay.clear()
+
+    def save_near1(self):
+        self.flag = 1
+        self.near = 1
         self.ui.stackedWidget.setCurrentIndex(2)
+        self.real_time_GUI_update()
 
-        # path에 담긴 모든 좌표에 빨간 점 출력
-        self._sync_overlay_geometry()
-        self.overlay.set_points(self.path)
-        self.overlay.show()
-        self.ui.car.move(self.pos_x, self.pos_y)
+    def save_near2(self):
+        self.flag = 1
+        self.near = 2
+        self.ui.stackedWidget.setCurrentIndex(2)
+        self.real_time_GUI_update()
 
+    def save_near3(self):
+        self.flag = 1
+        self.near = 3
+        self.ui.stackedWidget.setCurrentIndex(2)
+        self.real_time_GUI_update()
+        
+
+    def real_time_GUI_update(self):
         # 타이머를 사용하여 moving 함수를 주기적으로 호출
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.moving)
@@ -97,6 +131,17 @@ class MainWindow(QMainWindow):
 
         dx = self.pos_x - self.prev_x
         dy = self.pos_y - self.prev_y
+
+        if dx == 0 and dy == 0:
+            return
+
+        # path에 담긴 모든 좌표에 빨간 점 출력
+        self.overlay.clear()
+        self._sync_overlay_geometry()
+        self.overlay.set_points(self.path)
+        self.overlay.show()
+        self.ui.car.move(self.pos_x, self.pos_y)
+
         if dx > 0 and dy == 0:
             self.ui.car.setPixmap(QPixmap(u":/car/car_90.png"))
         elif dx < 0 and dy == 0:
@@ -133,33 +178,33 @@ class MainWindow(QMainWindow):
         return [(self.transfrom_col2x(col), self.transfrom_row2y(row)) for row, col in points]
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    Parking_lot = Map()
-    Parking_lot.map_reset()
+#     Parking_lot = Map()
+#     Parking_lot.map_reset()
 
-    app = QApplication(sys.argv)
-    navi = MainWindow()
+#     app = QApplication(sys.argv)
+#     navi = MainWindow()
 
-    pos_row = 54
-    pos_col = 25
+#     pos_row = 54
+#     pos_col = 25
     
-    path_prev = [
-        (54, 25), (54, 26), (54, 27), (54, 28), (54, 29),
-        (54, 30), (54, 31), (54, 32), (54, 33), (54, 34),
-        (54, 35), (54, 36), (54, 37), (54, 38), (54, 39),
-        (54, 40), (54, 41), (54, 42), (54, 43), (54, 44),
-        (54, 45), (54, 46), (54, 47), (54, 48), (54, 49),
-        (54, 50), (54, 51), (54, 52), (54, 53), (54, 54),
-        (54, 55), (54, 56), (54, 57), (54, 58), (54, 59),
-        (54, 60), (54, 61), (54, 62), (54, 63), (54, 64),
-        (54, 65), (53, 65), (52, 65), (51, 65), (50, 65),
-        (49, 65), (48, 65)
-    ]
+#     path_prev = [
+#         (54, 25), (54, 26), (54, 27), (54, 28), (54, 29),
+#         (54, 30), (54, 31), (54, 32), (54, 33), (54, 34),
+#         (54, 35), (54, 36), (54, 37), (54, 38), (54, 39),
+#         (54, 40), (54, 41), (54, 42), (54, 43), (54, 44),
+#         (54, 45), (54, 46), (54, 47), (54, 48), (54, 49),
+#         (54, 50), (54, 51), (54, 52), (54, 53), (54, 54),
+#         (54, 55), (54, 56), (54, 57), (54, 58), (54, 59),
+#         (54, 60), (54, 61), (54, 62), (54, 63), (54, 64),
+#         (54, 65), (53, 65), (52, 65), (51, 65), (50, 65),
+#         (49, 65), (48, 65)
+#     ]
 
-    navi.pos_x = navi.transfrom_col2x(pos_col) - 70  # imgae offset
-    navi.pos_y = navi.transfrom_row2y(pos_row) - 70
-    navi.path = navi.transform_points(path_prev)
+#     navi.pos_x = navi.transfrom_col2x(pos_col) - 70  # imgae offset
+#     navi.pos_y = navi.transfrom_row2y(pos_row) - 70
+#     navi.path = navi.transform_points(path_prev)
 
-    navi.showFullScreen()  # 전체 화면
-    sys.exit(app.exec())
+#     navi.showFullScreen()  # 전체 화면
+#     sys.exit(app.exec())

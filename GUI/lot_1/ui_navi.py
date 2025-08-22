@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'naviHzDeDd.ui'
+## Form generated from reading UI file 'naviiGwqLu.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -17,7 +17,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QGridLayout, QLabel, QMainWindow,
     QPushButton, QSizePolicy, QStackedWidget, QWidget)
-import resources_rc
+from . import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -136,8 +136,13 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.nomal.clicked.connect(MainWindow.save_type)
-        self.Entrance.clicked.connect(MainWindow.save_near)
+        self.nomal.clicked.connect(MainWindow.save_type4)
+        self.elec.clicked.connect(MainWindow.save_type5)
+        self.small.clicked.connect(MainWindow.save_type2)
+        self.handicap.clicked.connect(MainWindow.save_type3)
+        self.Entrance.clicked.connect(MainWindow.save_near1)
+        self.Exit.clicked.connect(MainWindow.save_near2)
+        self.Mall.clicked.connect(MainWindow.save_near3)
         self.terminate.clicked.connect(MainWindow.terminate)
 
         self.stackedWidget.setCurrentIndex(2)
