@@ -14,6 +14,7 @@
 ##      Output : self.path 좌표들 저장
 ###########################################################
 
+"""
 규약
 - 맵: lot[y][x] (2D 리스트). 1=벽/장애물, 2~5=주차칸, 6=입구, 7=출구, 8=마트
 - 외부 인터페이스: (x, y)  // main과 GUI 에서 쓰는 순서
@@ -36,7 +37,6 @@ Coord = Tuple[int, int]
 def _manhattan(a: Coord, b: Coord) -> int:
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-"""
 
 class PathPlanning:
     def __init__(self) -> None:
