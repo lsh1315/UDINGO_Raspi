@@ -36,7 +36,7 @@ Coord = Tuple[int, int]
 def _manhattan(a: Coord, b: Coord) -> int:
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-
+"""
 
 class PathPlanning:
     def __init__(self) -> None:
