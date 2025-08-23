@@ -20,21 +20,11 @@ try:
 except ImportError:
     serial = None
 
-# "숫자,숫자,숫자,숫자" 패턴 (앞뒤 공백 허용)
-_PATTERN = re.compile(
-    r'^\s*'                                     # 앞 공백
-    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d1
-    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d2
-    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d3
-    r'([0-9]+(?:\.[0-9]+)?)\s*'                 # d4
-    r'\s*$'                                     # 뒤 공백
-)
-
 def receive_dwm1000_distance(
     port: str = "/dev/serial0",   # 라즈베리파이 기본 UART
     baud: int = 115200,           # STM32와 동일하게 설정
-    timeout: float = 1.0,         # 총 대기 시간 (초)
-    line_timeout: float = 0.1,    # readline() 타임아웃 (짧게 설정)
+    timeout: float = 2.0,         # 총 대기 시간 (초)
+    line_timeout: float = 0.5,    # readline() 타임아웃 (짧게 설정)
 ):
     """
     라즈베리파이 4B에서 STM32 보드로부터 UART 수신 → "d1,d2,d3,d4" 문자열 파싱.
@@ -65,10 +55,6 @@ def receive_dwm1000_distance(
             try:
                 line = raw.decode("ascii", errors="ignore").strip()
             except Exception:
-                continue
-
-            m = _PATTERN.match(line)
-            if not m:
                 continue
 
             try:
