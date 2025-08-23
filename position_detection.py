@@ -11,42 +11,77 @@
 ##      Output : x, y
 ############################################################################################
 import numpy as np
-import time
-import serial  # pip install pyserial
 
-def stream_dwm1000_distances(
-    port: str = "/dev/serial0",
-    baud: int = 115200,
-    line_timeout: float = 0.2,
+import re
+import time
+
+try:
+    import serial  # pip install pyserial
+except ImportError:
+    serial = None
+
+# "숫자,숫자,숫자,숫자" 패턴 (앞뒤 공백 허용)
+_PATTERN = re.compile(
+    r'^\s*'                                     # 앞 공백
+    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d1
+    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d2
+    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d3
+    r'([0-9]+(?:\.[0-9]+)?)\s*'                 # d4
+    r'\s*$'                                     # 뒤 공백
+)
+
+def receive_dwm1000_distance(
+    port: str = "/dev/serial0",   # 라즈베리파이 기본 UART
+    baud: int = 115200,           # STM32와 동일하게 설정
+    timeout: float = 1.0,         # 총 대기 시간 (초)
+    line_timeout: float = 0.1,    # readline() 타임아웃 (짧게 설정)
 ):
     """
-    STM32 보드에서 오는 UART 문자열 "d1,d2,d3,d4"를 계속 읽어
-    (d1, d2, d3, d4) float 튜플로 yield 합니다.
-    
-    - 문자열 형식은 반드시 "숫자,숫자,숫자,숫자" (공백 불허)
-    - 예: 110,600,231,540
+    라즈베리파이 4B에서 STM32 보드로부터 UART 수신 → "d1,d2,d3,d4" 문자열 파싱.
+
+    Args:
+        port        : 시리얼 포트 (기본 /dev/serial0)
+        baud        : 보드레이트 (STM32 송신과 동일, 기본 115200)
+        timeout     : 총 대기 시간 (초)
+        line_timeout: readline() 단위 타임아웃 (초)
+
+    Returns:
+        (d1, d2, d3, d4)  # float 튜플
+        None              # 유효한 데이터가 timeout 내에 수신되지 않으면
     """
-    with serial.Serial(port=port, baudrate=baud, timeout=line_timeout) as ser:
+    if serial is None:
+        raise RuntimeError("pyserial이 설치되어 있지 않습니다. `pip install pyserial` 후 사용하세요.")
+
+    t0 = time.time()
+
+    with serial.Serial(port=port, baudrate=baud, timeout=max(0.01, line_timeout)) as ser:
         ser.reset_input_buffer()
-        while True:
+
+        while (time.time() - t0) < timeout:
             raw = ser.readline()
             if not raw:
                 continue
 
             try:
-                line = raw.decode("ascii").strip()
+                line = raw.decode("ascii", errors="ignore").strip()
             except Exception:
                 continue
 
-            parts = line.split(",")
-            if len(parts) != 4:
-                continue  # 형식 불일치 → 버림
+            m = _PATTERN.match(line)
+            if not m:
+                continue
 
             try:
-                d1, d2, d3, d4 = map(float, parts)
-                yield (d1, d2, d3, d4)
+                d1, d2, d3, d4 = (float(m.group(1)),
+                                  float(m.group(2)),
+                                  float(m.group(3)),
+                                  float(m.group(4)))
+                return (d1, d2, d3, d4)
             except ValueError:
                 continue
+
+    return None
+
 
 def trilaterate(distances):
     """
