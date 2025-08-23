@@ -20,6 +20,16 @@ try:
 except ImportError:
     serial = None
 
+# "숫자,숫자,숫자,숫자" 패턴 (앞뒤 공백 허용)
+_PATTERN = re.compile(
+    r'^\s*'                                     # 앞 공백
+    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d1
+    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d2
+    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d3
+    r'([0-9]+(?:\.[0-9]+)?)\s*'                 # d4
+    r'\s*$'                                     # 뒤 공백
+)
+
 def receive_dwm1000_distance(
     port: str = "/dev/serial0",   # 라즈베리파이 기본 UART
     baud: int = 115200,           # STM32와 동일하게 설정
@@ -55,6 +65,10 @@ def receive_dwm1000_distance(
             try:
                 line = raw.decode("ascii", errors="ignore").strip()
             except Exception:
+                continue
+
+            m = _PATTERN.match(line)
+            if not m:
                 continue
 
             try:
