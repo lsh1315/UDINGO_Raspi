@@ -137,5 +137,5 @@ def trilaterate(distances):
 
 
 if __name__ == "__main__":
-    d1, d2, d3, d4 = receive_dwm1000_distance()
-    print(d1,d2,d3,d4)
+    tup = receive_dwm1000_distance()
+    print(tup)
