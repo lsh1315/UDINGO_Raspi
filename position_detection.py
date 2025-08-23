@@ -11,6 +11,42 @@
 ##      Output : x, y
 ############################################################################################
 import numpy as np
+import time
+import serial  # pip install pyserial
+
+def stream_dwm1000_distances(
+    port: str = "/dev/serial0",
+    baud: int = 115200,
+    line_timeout: float = 0.2,
+):
+    """
+    STM32 보드에서 오는 UART 문자열 "d1,d2,d3,d4"를 계속 읽어
+    (d1, d2, d3, d4) float 튜플로 yield 합니다.
+    
+    - 문자열 형식은 반드시 "숫자,숫자,숫자,숫자" (공백 불허)
+    - 예: 110,600,231,540
+    """
+    with serial.Serial(port=port, baudrate=baud, timeout=line_timeout) as ser:
+        ser.reset_input_buffer()
+        while True:
+            raw = ser.readline()
+            if not raw:
+                continue
+
+            try:
+                line = raw.decode("ascii").strip()
+            except Exception:
+                continue
+
+            parts = line.split(",")
+            if len(parts) != 4:
+                continue  # 형식 불일치 → 버림
+
+            try:
+                d1, d2, d3, d4 = map(float, parts)
+                yield (d1, d2, d3, d4)
+            except ValueError:
+                continue
 
 def trilaterate(distances):
     """
