@@ -134,3 +134,8 @@ def trilaterate(distances):
         return position
     except np.linalg.LinAlgError:
         return None # Cannot compute the position, likely due to collinear points or other issues
+
+
+if __name__ == "__main__":
+    d1, d2, d3, d4 = receive_dwm1000_distance()
+    print(d1,d2,d3,d4)

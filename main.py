@@ -45,12 +45,15 @@ pos_row = 36
 pos_col = 24
 user_preference = (4,3)
 
-Path.recommend_parking(Parking_lot.copy_map, (pos_row,pos_col), user_preference)
-Path.astar(Parking_lot.copy_map, (pos_row,pos_col), Path.goal)
+while(1){
 
-navi.pos_x = navi.transfrom_col2x(pos_col) - 65  # imgae offset
-navi.pos_y = navi.transfrom_row2y(pos_row) - 65
-navi.path = navi.transform_points(Path.path)
+    Path.recommend_parking(Parking_lot.copy_map, (pos_row,pos_col), user_preference)
+    Path.astar(Parking_lot.copy_map, (pos_row,pos_col), Path.goal)
+
+    navi.pos_x = navi.transfrom_col2x(pos_col) - 65  # imgae offset
+    navi.pos_y = navi.transfrom_row2y(pos_row) - 65
+    navi.path = navi.transform_points(Path.path)
+}
 
 # GUI 내비게이션 출력
 
