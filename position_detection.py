@@ -30,7 +30,7 @@ def receive_dwm1000_distance(
         bytesize=serial.SEVENBITS,  # 7
         parity=serial.PARITY_EVEN,  # E
         stopbits=serial.STOPBITS_ONE, # 1
-        xonxoff=False,                  # Software flow control ON
+        xonxoff=True,                  # Software flow control ON
         rtscts=False,
         dsrdtr=False,
     )
