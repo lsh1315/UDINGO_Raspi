@@ -27,8 +27,8 @@ def receive_dwm1000_distance(
         port=port,
         baudrate=baud,
         timeout=line_timeout,
-        bytesize=serial.SEVENBITS,     # 7 data bits
-        parity=serial.PARITY_NONE,     # N
+        bytesize=serial.EIGHTBITS,     # 7 data bits
+        parity=serial.PARITY_ONE,     # 1
         stopbits=serial.STOPBITS_ONE,  # 1
         xonxoff=True,                  # Software flow control ON
         rtscts=False,
