@@ -17,63 +17,80 @@ import time
 def receive_dwm1000_distance(
     port: str = "/dev/ttyS0",
     baud: int = 115200,
-    line_timeout: float = 1.0,  # 타임아웃을 1초로 약간 늘려서 안정성 확보
+    line_timeout: float = 1.0,  # 타임아웃
 ):
     """
-    STM32에서 UART로 오는 'd1,d2,d3,d4\n' 한 줄을 수신해
-    (d1, d2, d3, d4) float 튜플로 반환합니다.
-    UART 설정: 115200, 8N1, 흐름 제어 없음 (가장 표준적인 설정)
+    프레임 형식: b'\\r\\n' + b'a,b,c,d' + b'\\r\\n'
+    -> 처음과 끝의 CRLF 사이 payload만 추출하여 (d1,d2,d3,d4) float 튜플로 반환.
+    UART: 115200, 8N1, flow control 없음 (요청 코드 유지)
     """
-    ser = None # try-finally 블록을 위해 미리 선언
+    ser = None
     try:
         ser = serial.Serial(
             port=port,
             baudrate=baud,
             timeout=line_timeout,
-            bytesize=serial.EIGHTBITS,    # 8-bit
-            parity=serial.PARITY_NONE,    # No parity
-            stopbits=serial.STOPBITS_ONE, # 1 stop bit
-            xonxoff=False,                # No software flow control
+            bytesize=serial.EIGHTBITS,      # 8N1 (요청 코드 유지)
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+            xonxoff=False,
             rtscts=False,
             dsrdtr=False,
         )
-        ser.reset_input_buffer() # 버퍼 비우기
+        ser.reset_input_buffer()
+
+        buf = bytearray()
 
         while True:
-            # 데이터가 들어올 때까지 blocking되며 기다림 (타임아웃 발생 시 빈 바이트 반환)
-            raw = ser.readline()
-            if not raw:
-                print("데이터 수신 타임아웃...")
-                continue # 데이터가 없으면 다시 시도
-
-            try:
-                # 수신된 바이트를 ascii 문자열로 디코딩
-                line = raw.decode("ascii").strip()
-                print(f"수신된 원본 데이터: '{line}'") # 디버깅을 위해 수신 데이터 출력
-            except UnicodeDecodeError:
-                print("ASCII 디코딩 실패. 잘못된 데이터 수신.")
+            # '\n'까지 읽어오되, 부분적으로 들어와도 누적
+            chunk = ser.read_until(expected=b'\n')
+            if not chunk:
                 continue
+            buf += chunk
 
-            # 유효성 검사 (','가 3개인지)
-            if line.count(',') != 3:
-                continue
+            # 메모리 폭주 방지(비정상 데이터가 계속 들어올 때)
+            if len(buf) > 8192:
+                buf = buf[-2048:]
 
-            parts = line.split(",")
-            try:
-                # 4개의 숫자로 변환 시도
-                d1, d2, d3, d4 = map(float, parts)
-                return (d1, d2, d3, d4)  # 성공 시 즉시 값 반환하고 함수 종료
-            except ValueError:
-                print(f"'{line}' -> 숫자로 변환 실패.")
-                # 숫자 변환 실패 시 다음 라인 대기
-                continue
+            # 프레임 파싱: 첫 CRLF와 그 다음 CRLF 사이
+            while True:
+                start = buf.find(b'\r\n')
+                if start == -1:
+                    break
+                end = buf.find(b'\r\n', start + 2)
+                if end == -1:
+                    break
+
+                payload_bytes = bytes(buf[start + 2:end])
+                # 소비한 만큼 버퍼에서 제거
+                del buf[:end + 2]
+
+                # 공백 불허: 스페이스/탭 있으면 폐기
+                if b' ' in payload_bytes or b'\t' in payload_bytes:
+                    continue
+
+                # ASCII 디코드
+                try:
+                    payload = payload_bytes.decode('ascii')
+                except UnicodeDecodeError:
+                    continue
+
+                # 'a,b,c,d' 형태 검사/파싱
+                if payload.count(',') != 3:
+                    continue
+                parts = payload.split(',')
+                try:
+                    d1, d2, d3, d4 = map(float, parts)
+                    return (d1, d2, d3, d4)
+                except ValueError:
+                    continue
+
     except serial.SerialException as e:
-        print(f"시리얼 포트 에러: {e}")
-        return None # 에러 발생 시 None 반환
+        # 필요 시 로깅
+        return None
     finally:
         if ser and ser.is_open:
             ser.close()
-            print("시리얼 포트 닫힘.")
 
 def trilaterate(distances):
     """
@@ -83,9 +100,9 @@ def trilaterate(distances):
     """
     d1, d2, d3, d4 = distances
 
-    x1, y1 = 0.0,   0.0
-    x2, y2 = 590.0, 0.0
-    x3, y3 = 0.0,   1190.0
+    x1, y1 = 10.0,  10.0
+    x2, y2 = 590.0, 10.0
+    x3, y3 = 10.0,   1190.0
     x4, y4 = 590.0, 1190.0
 
     A = np.array([
@@ -163,9 +180,7 @@ def correction(original_position):
 
 
 def run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=1.0):
-    print(f"1111111111111")
     distances = receive_dwm1000_distance()
-    print(f"2222222222222")
     coords = trilaterate(distances)
     if coords is None:
         return None  # 위치 계산 실패 시 None
