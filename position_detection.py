@@ -12,6 +12,7 @@
 ############################################################################################
 import numpy as np
 import serial
+import time
 
 def receive_dwm1000_distance():
     # 직렬 포트 설정
