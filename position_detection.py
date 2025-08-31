@@ -185,8 +185,5 @@ def run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=1.0):
     if coords is None:
         return None  # 위치 계산 실패 시 None
     row_col = correction(coords)
-    # print(f"({row_col[0]}, {row_col[1]})")
+    print(f"({row_col[0]}, {row_col[1]})")
     return row_col
-
-# if __name__ == "__main__":
-#     run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=1.0)
