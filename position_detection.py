@@ -13,7 +13,7 @@
 import numpy as np
 import serial
 
-def get_latest_distances(
+def receive_dwm1000_distance(
     port: str = "/dev/serial0",
     baud: int = 115200,
     line_timeout: float = 0.5,
