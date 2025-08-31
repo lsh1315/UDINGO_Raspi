@@ -14,7 +14,7 @@ import numpy as np
 import serial
 
 def receive_dwm1000_distance(
-    port: str = "/dev/serial0",
+    port: str = "/dev/ttyS0",
     baud: int = 115200,
     line_timeout: float = 0.5,
 ):
@@ -45,8 +45,6 @@ def receive_dwm1000_distance(
                 line = raw.decode("ascii", errors="ignore")
             except Exception:
                 continue
-
-            line = line.rstrip("\r\n")
 
             # 공백(스페이스/탭)이 하나라도 있으면 무시
             if (" " in line) or ("\t" in line):
