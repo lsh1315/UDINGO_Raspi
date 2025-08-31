@@ -164,7 +164,7 @@ def correction(original_position):
 
 def run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=1.0):
     print(f"1111111111111")
-    receive_dwm1000_distance()
+    distances = receive_dwm1000_distance()
     print(f"2222222222222")
     coords = trilaterate(distances)
     if coords is None:
