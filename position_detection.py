@@ -119,6 +119,52 @@ def trilaterate(distances):
         return None # Cannot compute the position, likely due to collinear points or other issues
 
 
+def correction(original_position, position):
+    row = original_position[0]
+    col = original_position[1]
+
+    if row <= 9:
+        if col <= 24:
+            row = 9
+            col = 24
+        elif col > 24 and col < 94:
+            row = 9
+        else:
+            row = 9
+            col = 94
+
+    elif row > 9 and row < 54:
+        if col <= 24:
+            col = 24
+        elif col < row + 13 and col < 76 - row and col > 24:
+            col = 24
+        elif row < 30 and col > row + 15 and col > 101 - row:
+            row = 9
+        elif col > 105 - row and col > row + 42 and col < 94:
+            col = 94
+        elif col >= 94:
+            col = 94
+        elif row > 33 and col < 80 - row and col < row + 38:
+            row = 54
+        else:
+            return
+
+    elif row >= 54 and row < 60:
+        if col <= 24:
+            row = 54
+            col = 24
+        elif col > 24 and col < 94:
+            row = 54
+        else:
+            row = 54
+            col = 94
+    else:
+        return
+
+    position[0] = row
+    position[1] = col
+
+
 if __name__ == "__main__":
     tup = receive_dwm1000_distance()
     print(tup)
