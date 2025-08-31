@@ -152,7 +152,9 @@ def correction(original_position):
 
 
 def run_all_and_print_row_col(port="/dev/serial0", baud=115200, line_timeout=0.5):
+    print(f"1111111111111")
     distances = receive_dwm1000_distance(port=port, baud=baud, line_timeout=line_timeout)
+    print(f"2222222222222")
     coords = trilaterate(distances)
     if coords is None:
         return None  # 위치 계산 실패 시 None
