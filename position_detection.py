@@ -188,5 +188,5 @@ def run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=1.0):
     print(f"({row_col[0]}, {row_col[1]})")
     return row_col
 
-if __name__ == "__main__":
-    run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=1.0)
+# if __name__ == "__main__":
+#     run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=1.0)

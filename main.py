@@ -6,7 +6,7 @@ from PySide6.QtCore import QObject, QThread, Slot
 from GUI.lot_1.map import Map
 from GUI.lot_1.navi import MainWindow
 # import server_communication as sc
-# import position_detection as pd
+import position_detection as pd
 from path_planning import PathPlanning
 
 global user_preference
@@ -31,7 +31,7 @@ class Worker(QObject):
         1초마다 "!"를 출력합니다.
         """
         while self.running:
-            self.pos = (self.pos[0]-2,self.pos[1])
+            self.pos = run_all_and_print_row_col()
             Path.recommend_parking(Parking_lot.copy_map, self.pos, (navi.type, navi.near))
             Path.astar(Parking_lot.copy_map, self.pos, Path.goal)
 
