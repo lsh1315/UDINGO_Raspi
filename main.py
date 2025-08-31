@@ -31,7 +31,7 @@ class Worker(QObject):
         1초마다 "!"를 출력합니다.
         """
         while self.running:
-            self.pos = run_all_and_print_row_col()
+            self.pos = pd.run_all_and_print_row_col()
             Path.recommend_parking(Parking_lot.copy_map, self.pos, (navi.type, navi.near))
             Path.astar(Parking_lot.copy_map, self.pos, Path.goal)
 
