@@ -163,6 +163,12 @@ def correction(original_position, position):
 
     return (row, col)
 
+def get_corrected_position(port="/dev/serial0", baud=115200):
+    dists = receive_dwm1000_distance(port=port, baud=baud)
+    x, y = trilaterate(dists)
+    row, col = correction((x, y))
+    return (row, col)
+
 if __name__ == "__main__":
     tup = receive_dwm1000_distance()
     print(tup)
