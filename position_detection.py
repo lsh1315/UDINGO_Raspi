@@ -13,37 +13,36 @@
 import numpy as np
 import serial
 
+# ================================
+# 1) 거리 수신 (한 세트 읽고 반환)
+# ================================
 def receive_dwm1000_distance(
     port: str = "/dev/serial0",
     baud: int = 115200,
     line_timeout: float = 0.5,
 ):
     """
-    STM32에서 UART로 오는 'd1,d2,d3,d4' 문자열을 계속 수신.
-    최신값을 d1,d2,d3,d4 변수에 저장.
+    STM32에서 UART로 오는 'd1,d2,d3,d4' 문자열을 1회 수신해 float 튜플로 반환.
+    - 형식: 공백 없음 (예: 110,600,231,540)
+    - UART: 115200, 7N1, XON/XOFF
     """
     ser = serial.Serial(
         port=port,
         baudrate=baud,
         timeout=line_timeout,
-        bytesize=serial.SEVENBITS,       # 7 데이터 비트
-        parity=serial.PARITY_NONE,       # 패리티 없음
-        stopbits=serial.STOPBITS_ONE,    # 1 스톱 비트
-        xonxoff=True,                    # XON/XOFF 소프트 플로우 제어
+        bytesize=serial.SEVENBITS,     # 7 data bits
+        parity=serial.PARITY_NONE,     # N
+        stopbits=serial.STOPBITS_ONE,  # 1
+        xonxoff=True,                  # Software flow control
         rtscts=False,
-        dsrdtr=False
+        dsrdtr=False,
     )
-
     ser.reset_input_buffer()
-
-    d1 = d2 = d3 = d4 = None  # 초기값
-
     try:
         while True:
             raw = ser.readline()
             if not raw:
                 continue
-
             try:
                 line = raw.decode("ascii").strip()
             except Exception:
@@ -55,51 +54,37 @@ def receive_dwm1000_distance(
 
             try:
                 d1, d2, d3, d4 = map(float, parts)
+                return (d1, d2, d3, d4)
             except ValueError:
+                # 숫자 변환 실패 시 다음 라인 대기
                 continue
-
-            # 여기서 d1,d2,d3,d4 변수는 항상 최신 값으로 갱신됨
     finally:
         ser.close()
 
-    return d1, d2, d3, d4
-
-
-
+# ================================
+# 2) 삼변측량
+# ================================
 def trilaterate(distances):
     """
-    Calculates the position of a tagger using trilateration with 4 anchors.
-    The anchors are assumed to be at the corners of a 1200x600 rectangle.
-
-    Args:
-        distances (list or tuple): A list of 4 distances from the tagger to the anchors,
-                                   in the order [d1, d2, d3, d4].
-                                   d1: distance to anchor at (0, 0)
-                                   d2: distance to anchor at (1200, 0)
-                                   d3: distance to anchor at (0, 600)
-                                   d4: distance to anchor at (1200, 600)
-
-    Returns:
-        numpy.ndarray: The calculated (x, y) coordinates of the tagger.
+    4개 앵커와의 거리로 (x, y) 위치 추정.
+    distances = (d1, d2, d3, d4)
+    앵커 좌표: (0,0), (590,0), (0,1190), (590,1190)
     """
     d1, d2, d3, d4 = distances
 
-    # Anchor coordinates
-    x1, y1 = 0, 0
-    x2, y2 = 590, 0
-    x3, y3 = 0, 1190
-    x4, y4 = 590, 1190
+    x1, y1 = 0.0,   0.0
+    x2, y2 = 590.0, 0.0
+    x3, y3 = 0.0,   1190.0
+    x4, y4 = 590.0, 1190.0
 
-    # Set up the system of linear equations Ax = b
-    # We linearize the system by creating equations from all 6 pairs of anchors.
     A = np.array([
-        [2 * (x2 - x1), 2 * (y2 - y1)],
-        [2 * (x3 - x1), 2 * (y3 - y1)],
-        [2 * (x4 - x1), 2 * (y4 - y1)],
-        [2 * (x3 - x2), 2 * (y3 - y2)],
-        [2 * (x4 - x2), 2 * (y4 - y2)],
-        [2 * (x4 - x3), 2 * (y4 - y3)]
-    ])
+        [2*(x2-x1), 2*(y2-y1)],
+        [2*(x3-x1), 2*(y3-y1)],
+        [2*(x4-x1), 2*(y4-y1)],
+        [2*(x3-x2), 2*(y3-y2)],
+        [2*(x4-x2), 2*(y4-y2)],
+        [2*(x4-x3), 2*(y4-y3)],
+    ], dtype=float)
 
     b = np.array([
         d1**2 - d2**2 - x1**2 + x2**2 - y1**2 + y2**2,
@@ -107,19 +92,20 @@ def trilaterate(distances):
         d1**2 - d4**2 - x1**2 + x4**2 - y1**2 + y4**2,
         d2**2 - d3**2 - x2**2 + x3**2 - y2**2 + y3**2,
         d2**2 - d4**2 - x2**2 + x4**2 - y2**2 + y4**2,
-        d3**2 - d4**2 - x3**2 + x4**2 - y3**2 + y4**2
-    ])
+        d3**2 - d4**2 - x3**2 + x4**2 - y3**2 + y4**2,
+    ], dtype=float)
 
-    # Solve for x using the pseudo-inverse (least squares solution)
-    # x = (A^T * A)^-1 * A^T * b
+    # 수치 안정성을 위해 lstsq 사용
     try:
-        position = np.linalg.inv(A.T @ A) @ A.T @ b
-        return position
+        pos, *_ = np.linalg.lstsq(A, b, rcond=None)  # shape (2,)
+        return (float(pos[0]), float(pos[1]))
     except np.linalg.LinAlgError:
-        return None # Cannot compute the position, likely due to collinear points or other issues
+        return None
 
-
-def correction(original_position, position):
+# ================================
+# 3) 보정 (C 로직 그대로, 튜플 반환)
+# ================================
+def correction(original_position):
     row = original_position[0]
     col = original_position[1]
 
@@ -147,7 +133,7 @@ def correction(original_position, position):
         elif row > 33 and col < 80 - row and col < row + 38:
             row = 54
         else:
-            return
+            return (row, col)
 
     elif row >= 54 and row < 60:
         if col <= 24:
@@ -163,12 +149,21 @@ def correction(original_position, position):
 
     return (row, col)
 
-def get_corrected_position(port="/dev/serial0", baud=115200):
-    dists = receive_dwm1000_distance(port=port, baud=baud)
-    x, y = trilaterate(dists)
-    row, col = correction((x, y))
-    return (row, col)
+# ================================
+# 4) 통합 함수 (1회 수행)
+# ================================
+def get_corrected_position(port="/dev/serial0", baud=115200, line_timeout=0.5):
+    """
+    UART에서 거리 1세트 수신 → (x,y) 추정 → 보정 → 최종 (row,col) 반환.
+    실패 시 None 반환.
+    """
+    distances = receive_dwm1000_distance(port=port, baud=baud, line_timeout=line_timeout)
+    coords = trilaterate(distances)
+    if coords is None:
+        return None
+    x, y = coords
+    return correction((x, y))
 
-if __name__ == "__main__":
-    tup = receive_dwm1000_distance()
-    print(tup)
+# 예시:
+# pos = get_corrected_position("/dev/serial0", 115200)
+# print(pos)
