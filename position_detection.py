@@ -46,6 +46,8 @@ def receive_dwm1000_distance(
             except Exception:
                 continue
 
+            line = line.rstrip("\r\n")
+
             # 공백(스페이스/탭)이 하나라도 있으면 무시
             if (" " in line) or ("\t" in line):
                 continue
