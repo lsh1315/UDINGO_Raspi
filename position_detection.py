@@ -14,7 +14,7 @@ import numpy as np
 import serial
 
 def receive_dwm1000_distance(
-    port: str = "/dev/ttyS0",
+    port: str = "/dev/serial0",
     baud: int = 115200,
     line_timeout: float = 0.5,
 ):
@@ -153,7 +153,7 @@ def correction(original_position):
     return (row, col)
 
 
-def run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=0.5):
+def run_all_and_print_row_col(port="/dev/seria0", baud=115200, line_timeout=0.5):
     print(f"1111111111111")
     distances = receive_dwm1000_distance(port=port, baud=baud, line_timeout=line_timeout)
     print(f"2222222222222")
@@ -165,4 +165,4 @@ def run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=0.5):
     return row_col
 
 if __name__ == "__main__":
-    run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=0.5)
+    run_all_and_print_row_col(port="/dev/serial0", baud=115200, line_timeout=0.5)
