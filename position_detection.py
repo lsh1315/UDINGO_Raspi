@@ -19,25 +19,22 @@ def receive_dwm1000_distance(
     line_timeout: float = 0.5,
 ):
     """
-    STM32에서 UART로 오는 'd1,d2,d3,d4' 문자열을 계속 수신.
-    최신값을 d1,d2,d3,d4 변수에 저장.
+    STM32에서 UART로 오는 'd1,d2,d3,d4' (공백 없음, CR/LF 미처리) 한 줄을 수신해
+    (d1, d2, d3, d4) float 튜플로 반환합니다.
+    UART: 115200, 7N1, XON/XOFF.
     """
     ser = serial.Serial(
         port=port,
         baudrate=baud,
         timeout=line_timeout,
-        bytesize=serial.SEVENBITS,       # 7 데이터 비트
-        parity=serial.PARITY_NONE,       # 패리티 없음
-        stopbits=serial.STOPBITS_ONE,    # 1 스톱 비트
-        xonxoff=True,                    # XON/XOFF 소프트 플로우 제어
+        bytesize=serial.SEVENBITS,  # 7
+        parity=serial.PARITY_EVEN,  # E
+        stopbits=serial.STOPBITS_ONE, # 1
+        xonxoff=False,                  # Software flow control ON
         rtscts=False,
-        dsrdtr=False
+        dsrdtr=False,
     )
-
     ser.reset_input_buffer()
-
-    d1 = d2 = d3 = d4 = None  # 초기값
-
     try:
         while True:
             raw = ser.readline()
@@ -45,8 +42,14 @@ def receive_dwm1000_distance(
                 continue
 
             try:
-                line = raw.decode("ascii").strip()
+                line = raw.decode("ascii", errors="ignore")
             except Exception:
+                continue
+
+            line = line.rstrip("\r\n")
+
+            # 공백(스페이스/탭)이 하나라도 있으면 무시
+            if (" " in line) or ("\t" in line):
                 continue
 
             parts = line.split(",")
@@ -55,51 +58,35 @@ def receive_dwm1000_distance(
 
             try:
                 d1, d2, d3, d4 = map(float, parts)
+                return (d1, d2, d3, d4)  # 한 세트 수신 후 즉시 반환
             except ValueError:
+                # 숫자 변환 실패 시 다음 라인 대기
                 continue
-
-            # 여기서 d1,d2,d3,d4 변수는 항상 최신 값으로 갱신됨
     finally:
         ser.close()
-
-    return d1, d2, d3, d4
-
 
 
 def trilaterate(distances):
     """
-    Calculates the position of a tagger using trilateration with 4 anchors.
-    The anchors are assumed to be at the corners of a 1200x600 rectangle.
-
-    Args:
-        distances (list or tuple): A list of 4 distances from the tagger to the anchors,
-                                   in the order [d1, d2, d3, d4].
-                                   d1: distance to anchor at (0, 0)
-                                   d2: distance to anchor at (1200, 0)
-                                   d3: distance to anchor at (0, 600)
-                                   d4: distance to anchor at (1200, 600)
-
-    Returns:
-        numpy.ndarray: The calculated (x, y) coordinates of the tagger.
+    4개 앵커와의 거리로 (x, y) 위치 추정.
+    distances = (d1, d2, d3, d4)
+    앵커: (0,0), (590,0), (0,1190), (590,1190)
     """
     d1, d2, d3, d4 = distances
 
-    # Anchor coordinates
-    x1, y1 = 0, 0
-    x2, y2 = 590, 0
-    x3, y3 = 0, 1190
-    x4, y4 = 590, 1190
+    x1, y1 = 0.0,   0.0
+    x2, y2 = 590.0, 0.0
+    x3, y3 = 0.0,   1190.0
+    x4, y4 = 590.0, 1190.0
 
-    # Set up the system of linear equations Ax = b
-    # We linearize the system by creating equations from all 6 pairs of anchors.
     A = np.array([
-        [2 * (x2 - x1), 2 * (y2 - y1)],
-        [2 * (x3 - x1), 2 * (y3 - y1)],
-        [2 * (x4 - x1), 2 * (y4 - y1)],
-        [2 * (x3 - x2), 2 * (y3 - y2)],
-        [2 * (x4 - x2), 2 * (y4 - y2)],
-        [2 * (x4 - x3), 2 * (y4 - y3)]
-    ])
+        [2*(x2-x1), 2*(y2-y1)],
+        [2*(x3-x1), 2*(y3-y1)],
+        [2*(x4-x1), 2*(y4-y1)],
+        [2*(x3-x2), 2*(y3-y2)],
+        [2*(x4-x2), 2*(y4-y2)],
+        [2*(x4-x3), 2*(y4-y3)],
+    ], dtype=float)
 
     b = np.array([
         d1**2 - d2**2 - x1**2 + x2**2 - y1**2 + y2**2,
@@ -107,19 +94,21 @@ def trilaterate(distances):
         d1**2 - d4**2 - x1**2 + x4**2 - y1**2 + y4**2,
         d2**2 - d3**2 - x2**2 + x3**2 - y2**2 + y3**2,
         d2**2 - d4**2 - x2**2 + x4**2 - y2**2 + y4**2,
-        d3**2 - d4**2 - x3**2 + x4**2 - y3**2 + y4**2
-    ])
+        d3**2 - d4**2 - x3**2 + x4**2 - y3**2 + y4**2,
+    ], dtype=float)
 
-    # Solve for x using the pseudo-inverse (least squares solution)
-    # x = (A^T * A)^-1 * A^T * b
     try:
-        position = np.linalg.inv(A.T @ A) @ A.T @ b
-        return position
-    except np.linalg.LinAlgError:
-        return None # Cannot compute the position, likely due to collinear points or other issues
+        pos, *_ = np.linalg.lstsq(A, b, rcond=None)
+        return (float(pos[0]), float(pos[1]))
+    except Exception:
+        return None
 
 
-def correction(original_position, position):
+def correction(original_position):
+    """
+    입력: original_position = (x, y)
+    출력: (row, col)
+    """
     row = original_position[0]
     col = original_position[1]
 
@@ -147,7 +136,7 @@ def correction(original_position, position):
         elif row > 33 and col < 80 - row and col < row + 38:
             row = 54
         else:
-            return
+            return (row, col)
 
     elif row >= 54 and row < 60:
         if col <= 24:
@@ -163,6 +152,17 @@ def correction(original_position, position):
 
     return (row, col)
 
+
+def run_all_and_print_row_col(port="/dev/seria0", baud=115200, line_timeout=0.5):
+    print(f"1111111111111")
+    distances = receive_dwm1000_distance(port=port, baud=baud, line_timeout=line_timeout)
+    print(f"2222222222222")
+    coords = trilaterate(distances)
+    if coords is None:
+        return None  # 위치 계산 실패 시 None
+    row_col = correction(coords)
+    print(f"({row_col[0]}, {row_col[1]})")
+    return row_col
+
 if __name__ == "__main__":
-    tup = receive_dwm1000_distance()
-    print(tup)
+    run_all_and_print_row_col(port="/dev/serial0", baud=115200, line_timeout=0.5)
