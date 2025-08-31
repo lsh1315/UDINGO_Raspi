@@ -125,7 +125,7 @@ def trilaterate(distances):
 
     try:
         pos, *_ = np.linalg.lstsq(A, b, rcond=None)
-        return (float(pos[0]), float(pos[1]))
+        return (float(pos[0]/10), float(pos[1]/10))
     except Exception:
         return None
 
