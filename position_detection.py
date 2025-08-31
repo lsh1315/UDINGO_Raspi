@@ -151,7 +151,7 @@ def correction(original_position):
     return (row, col)
 
 
-def run_all_and_print_row_col(port="/dev/serial0", baud=115200, line_timeout=0.5):
+def run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=0.5):
     print(f"1111111111111")
     distances = receive_dwm1000_distance(port=port, baud=baud, line_timeout=line_timeout)
     print(f"2222222222222")
