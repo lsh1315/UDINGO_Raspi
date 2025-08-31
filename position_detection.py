@@ -13,58 +13,34 @@
 import numpy as np
 import serial
 
-def receive_dwm1000_distance(
-    port: str = "/dev/serial0",
-    baud: int = 115200,
-    line_timeout: float = 0.5,
-):
-    """
-    STM32에서 UART로 오는 'd1,d2,d3,d4' (공백 없음, CR/LF 미처리) 한 줄을 수신해
-    (d1, d2, d3, d4) float 튜플로 반환합니다.
-    UART: 115200, 7N1, XON/XOFF.
-    """
-    ser = serial.Serial(
-        port=port,
-        baudrate=baud,
-        timeout=line_timeout,
-        bytesize=serial.SEVENBITS,  # 7
-        parity=serial.PARITY_EVEN,  # E
-        stopbits=serial.STOPBITS_ONE, # 1
-        xonxoff=True,                  # Software flow control ON
-        rtscts=False,
-        dsrdtr=False,
-    )
-    ser.reset_input_buffer()
+def receive_dwm1000_distance():
+    # 직렬 포트 설정
+    # 포트 이름: '/dev/ttyS0' 또는 '/dev/serial0' 일 수 있습니다.
+    # Baudrate: 통신 속도 (상대 장치와 동일하게 설정해야 합니다)
     try:
+        ser = serial.Serial('/dev/ttyS0', 115200, timeout=1)
+        ser.flush() # 포트의 입력 버퍼를 비웁니다.
+        print("UART 수신을 시작합니다. Ctrl+C를 눌러 종료하세요.")
+
         while True:
-            raw = ser.readline()
-            if not raw:
-                continue
+            # 데이터가 들어왔는지 확인
+            if ser.in_waiting > 0:
+                # 들어온 데이터를 한 줄 읽습니다. (b'\r\n'가 나올 때까지)
+                # decode('utf-8')을 사용하여 바이트 데이터를 문자열로 변환합니다.
+                # rstrip()으로 끝에 붙는 개행 문자를 제거합니다.
+                line = ser.readline().decode('utf-8').rstrip()
+                print("수신된 데이터: " + line)
 
-            try:
-                line = raw.decode("ascii", errors="ignore")
-            except Exception:
-                continue
+            time.sleep(0.1) # CPU 사용량을 줄이기 위해 잠시 대기
 
-            line = line.rstrip("\r\n")
-
-            # 공백(스페이스/탭)이 하나라도 있으면 무시
-            if (" " in line) or ("\t" in line):
-                continue
-
-            parts = line.split(",")
-            if len(parts) != 4:
-                continue
-
-            try:
-                d1, d2, d3, d4 = map(float, parts)
-                return (d1, d2, d3, d4)  # 한 세트 수신 후 즉시 반환
-            except ValueError:
-                # 숫자 변환 실패 시 다음 라인 대기
-                continue
+    except serial.SerialException as e:
+        print(f"시리얼 포트를 여는 데 실패했습니다: {e}")
+    except KeyboardInterrupt:
+        print("\n프로그램을 종료합니다.")
     finally:
-        ser.close()
-
+        if 'ser' in locals() and ser.is_open:
+            ser.close()
+            print("시리얼 포트를 닫았습니다.")
 
 def trilaterate(distances):
     """
