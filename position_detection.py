@@ -13,18 +13,15 @@
 import numpy as np
 import serial
 
-# ================================
-# 1) 거리 수신 (한 세트 읽고 반환)
-# ================================
 def receive_dwm1000_distance(
     port: str = "/dev/serial0",
     baud: int = 115200,
     line_timeout: float = 0.5,
 ):
     """
-    STM32에서 UART로 오는 'd1,d2,d3,d4' 문자열을 1회 수신해 float 튜플로 반환.
-    - 형식: 공백 없음 (예: 110,600,231,540)
-    - UART: 115200, 7N1, XON/XOFF
+    STM32에서 UART로 오는 'd1,d2,d3,d4' (공백 없음, CR/LF 미처리) 한 줄을 수신해
+    (d1, d2, d3, d4) float 튜플로 반환합니다.
+    UART: 115200, 7N1, XON/XOFF.
     """
     ser = serial.Serial(
         port=port,
@@ -33,7 +30,7 @@ def receive_dwm1000_distance(
         bytesize=serial.SEVENBITS,     # 7 data bits
         parity=serial.PARITY_NONE,     # N
         stopbits=serial.STOPBITS_ONE,  # 1
-        xonxoff=True,                  # Software flow control
+        xonxoff=True,                  # Software flow control ON
         rtscts=False,
         dsrdtr=False,
     )
@@ -43,9 +40,14 @@ def receive_dwm1000_distance(
             raw = ser.readline()
             if not raw:
                 continue
+
             try:
-                line = raw.decode("ascii").strip()
+                line = raw.decode("ascii", errors="ignore")
             except Exception:
+                continue
+
+            # 공백(스페이스/탭)이 하나라도 있으면 무시
+            if (" " in line) or ("\t" in line):
                 continue
 
             parts = line.split(",")
@@ -54,21 +56,19 @@ def receive_dwm1000_distance(
 
             try:
                 d1, d2, d3, d4 = map(float, parts)
-                return (d1, d2, d3, d4)
+                return (d1, d2, d3, d4)  # 한 세트 수신 후 즉시 반환
             except ValueError:
                 # 숫자 변환 실패 시 다음 라인 대기
                 continue
     finally:
         ser.close()
 
-# ================================
-# 2) 삼변측량
-# ================================
+
 def trilaterate(distances):
     """
     4개 앵커와의 거리로 (x, y) 위치 추정.
     distances = (d1, d2, d3, d4)
-    앵커 좌표: (0,0), (590,0), (0,1190), (590,1190)
+    앵커: (0,0), (590,0), (0,1190), (590,1190)
     """
     d1, d2, d3, d4 = distances
 
@@ -95,17 +95,18 @@ def trilaterate(distances):
         d3**2 - d4**2 - x3**2 + x4**2 - y3**2 + y4**2,
     ], dtype=float)
 
-    # 수치 안정성을 위해 lstsq 사용
     try:
-        pos, *_ = np.linalg.lstsq(A, b, rcond=None)  # shape (2,)
+        pos, *_ = np.linalg.lstsq(A, b, rcond=None)
         return (float(pos[0]), float(pos[1]))
-    except np.linalg.LinAlgError:
+    except Exception:
         return None
 
-# ================================
-# 3) 보정 (C 로직 그대로, 튜플 반환)
-# ================================
+
 def correction(original_position):
+    """
+    입력: original_position = (x, y)
+    출력: (row, col)
+    """
     row = original_position[0]
     col = original_position[1]
 
@@ -149,21 +150,13 @@ def correction(original_position):
 
     return (row, col)
 
-# ================================
-# 4) 통합 함수 (1회 수행)
-# ================================
-def get_corrected_position(port="/dev/serial0", baud=115200, line_timeout=0.5):
-    """
-    UART에서 거리 1세트 수신 → (x,y) 추정 → 보정 → 최종 (row,col) 반환.
-    실패 시 None 반환.
-    """
+
+def run_all_and_print_row_col(port="/dev/serial0", baud=115200, line_timeout=0.5):
     distances = receive_dwm1000_distance(port=port, baud=baud, line_timeout=line_timeout)
     coords = trilaterate(distances)
     if coords is None:
-        return None
-    x, y = coords
-    return correction((x, y))
+        return None  # 위치 계산 실패 시 None
+    row_col = correction(coords)
+    print(f"({row_col[0]}, {row_col[1]})")
+    return row_col
 
-# 예시:
-# pos = get_corrected_position("/dev/serial0", 115200)
-# print(pos)
