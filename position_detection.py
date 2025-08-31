@@ -159,11 +159,9 @@ def correction(original_position, position):
             row = 54
             col = 94
     else:
-        return
+        return (row, col)
 
-    position[0] = row
-    position[1] = col
-
+    return (row, col)
 
 if __name__ == "__main__":
     tup = receive_dwm1000_distance()
