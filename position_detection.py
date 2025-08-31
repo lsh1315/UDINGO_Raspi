@@ -11,76 +11,59 @@
 ##      Output : x, y
 ############################################################################################
 import numpy as np
+import serial
 
-import re
-import time
-
-try:
-    import serial  # pip install pyserial
-except ImportError:
-    serial = None
-
-# "숫자,숫자,숫자,숫자" 패턴 (앞뒤 공백 허용)
-_PATTERN = re.compile(
-    r'^\s*'                                     # 앞 공백
-    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d1
-    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d2
-    r'([0-9]+(?:\.[0-9]+)?)\s*,\s*'             # d3
-    r'([0-9]+(?:\.[0-9]+)?)\s*'                 # d4
-    r'\s*$'                                     # 뒤 공백
-)
-
-def receive_dwm1000_distance(
-    port: str = "/dev/serial0",   # 라즈베리파이 기본 UART
-    baud: int = 115200,           # STM32와 동일하게 설정
-    timeout: float = 2.0,         # 총 대기 시간 (초)
-    line_timeout: float = 0.5,    # readline() 타임아웃 (짧게 설정)
+def get_latest_distances(
+    port: str = "/dev/serial0",
+    baud: int = 115200,
+    line_timeout: float = 0.5,
 ):
     """
-    라즈베리파이 4B에서 STM32 보드로부터 UART 수신 → "d1,d2,d3,d4" 문자열 파싱.
-
-    Args:
-        port        : 시리얼 포트 (기본 /dev/serial0)
-        baud        : 보드레이트 (STM32 송신과 동일, 기본 115200)
-        timeout     : 총 대기 시간 (초)
-        line_timeout: readline() 단위 타임아웃 (초)
-
-    Returns:
-        (d1, d2, d3, d4)  # float 튜플
-        None              # 유효한 데이터가 timeout 내에 수신되지 않으면
+    STM32에서 UART로 오는 'd1,d2,d3,d4' 문자열을 계속 수신.
+    최신값을 d1,d2,d3,d4 변수에 저장.
     """
-    if serial is None:
-        raise RuntimeError("pyserial이 설치되어 있지 않습니다. `pip install pyserial` 후 사용하세요.")
+    ser = serial.Serial(
+        port=port,
+        baudrate=baud,
+        timeout=line_timeout,
+        bytesize=serial.SEVENBITS,       # 7 데이터 비트
+        parity=serial.PARITY_NONE,       # 패리티 없음
+        stopbits=serial.STOPBITS_ONE,    # 1 스톱 비트
+        xonxoff=True,                    # XON/XOFF 소프트 플로우 제어
+        rtscts=False,
+        dsrdtr=False
+    )
 
-    t0 = time.time()
+    ser.reset_input_buffer()
 
-    with serial.Serial(port=port, baudrate=baud, timeout=max(0.01, line_timeout)) as ser:
-        ser.reset_input_buffer()
+    d1 = d2 = d3 = d4 = None  # 초기값
 
-        while (time.time() - t0) < timeout:
+    try:
+        while True:
             raw = ser.readline()
             if not raw:
                 continue
 
             try:
-                line = raw.decode("ascii", errors="ignore").strip()
+                line = raw.decode("ascii").strip()
             except Exception:
                 continue
 
-            m = _PATTERN.match(line)
-            if not m:
+            parts = line.split(",")
+            if len(parts) != 4:
                 continue
 
             try:
-                d1, d2, d3, d4 = (float(m.group(1)),
-                                  float(m.group(2)),
-                                  float(m.group(3)),
-                                  float(m.group(4)))
-                return (d1, d2, d3, d4)
+                d1, d2, d3, d4 = map(float, parts)
             except ValueError:
                 continue
 
-    return None
+            # 여기서 d1,d2,d3,d4 변수는 항상 최신 값으로 갱신됨
+    finally:
+        ser.close()
+
+    return d1, d2, d3, d4
+
 
 
 def trilaterate(distances):
