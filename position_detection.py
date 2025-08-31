@@ -14,34 +14,66 @@ import numpy as np
 import serial
 import time
 
-def receive_dwm1000_distance():
-    # 직렬 포트 설정
-    # 포트 이름: '/dev/ttyS0' 또는 '/dev/serial0' 일 수 있습니다.
-    # Baudrate: 통신 속도 (상대 장치와 동일하게 설정해야 합니다)
+def receive_dwm1000_distance(
+    port: str = "/dev/ttyS0",
+    baud: int = 115200,
+    line_timeout: float = 1.0,  # 타임아웃을 1초로 약간 늘려서 안정성 확보
+):
+    """
+    STM32에서 UART로 오는 'd1,d2,d3,d4\n' 한 줄을 수신해
+    (d1, d2, d3, d4) float 튜플로 반환합니다.
+    UART 설정: 115200, 8N1, 흐름 제어 없음 (가장 표준적인 설정)
+    """
+    ser = None # try-finally 블록을 위해 미리 선언
     try:
-        ser = serial.Serial('/dev/ttyS0', 115200, timeout=1)
-        ser.flush() # 포트의 입력 버퍼를 비웁니다.
-        print("UART 수신을 시작합니다. Ctrl+C를 눌러 종료하세요.")
+        ser = serial.Serial(
+            port=port,
+            baudrate=baud,
+            timeout=line_timeout,
+            bytesize=serial.EIGHTBITS,    # 8-bit
+            parity=serial.PARITY_NONE,    # No parity
+            stopbits=serial.STOPBITS_ONE, # 1 stop bit
+            xonxoff=False,                # No software flow control
+            rtscts=False,
+            dsrdtr=False,
+        )
+        ser.reset_input_buffer() # 버퍼 비우기
 
         while True:
-            # 데이터가 들어왔는지 확인
-            if ser.in_waiting > 0:
-                # 들어온 데이터를 한 줄 읽습니다. (b'\r\n'가 나올 때까지)
-                # decode('utf-8')을 사용하여 바이트 데이터를 문자열로 변환합니다.
-                # rstrip()으로 끝에 붙는 개행 문자를 제거합니다.
-                line = ser.readline().decode('utf-8').rstrip()
-                print("수신된 데이터: " + line)
+            # 데이터가 들어올 때까지 blocking되며 기다림 (타임아웃 발생 시 빈 바이트 반환)
+            raw = ser.readline()
+            if not raw:
+                print("데이터 수신 타임아웃...")
+                continue # 데이터가 없으면 다시 시도
 
-            time.sleep(0.1) # CPU 사용량을 줄이기 위해 잠시 대기
+            try:
+                # 수신된 바이트를 ascii 문자열로 디코딩
+                line = raw.decode("ascii").strip()
+                print(f"수신된 원본 데이터: '{line}'") # 디버깅을 위해 수신 데이터 출력
+            except UnicodeDecodeError:
+                print("ASCII 디코딩 실패. 잘못된 데이터 수신.")
+                continue
 
+            # 유효성 검사 (','가 3개인지)
+            if line.count(',') != 3:
+                continue
+
+            parts = line.split(",")
+            try:
+                # 4개의 숫자로 변환 시도
+                d1, d2, d3, d4 = map(float, parts)
+                return (d1, d2, d3, d4)  # 성공 시 즉시 값 반환하고 함수 종료
+            except ValueError:
+                print(f"'{line}' -> 숫자로 변환 실패.")
+                # 숫자 변환 실패 시 다음 라인 대기
+                continue
     except serial.SerialException as e:
-        print(f"시리얼 포트를 여는 데 실패했습니다: {e}")
-    except KeyboardInterrupt:
-        print("\n프로그램을 종료합니다.")
+        print(f"시리얼 포트 에러: {e}")
+        return None # 에러 발생 시 None 반환
     finally:
-        if 'ser' in locals() and ser.is_open:
+        if ser and ser.is_open:
             ser.close()
-            print("시리얼 포트를 닫았습니다.")
+            print("시리얼 포트 닫힘.")
 
 def trilaterate(distances):
     """
@@ -130,7 +162,7 @@ def correction(original_position):
     return (row, col)
 
 
-def run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=0.5):
+def run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=1.0):
     print(f"1111111111111")
     receive_dwm1000_distance()
     print(f"2222222222222")
