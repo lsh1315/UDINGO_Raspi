@@ -165,4 +165,4 @@ def run_all_and_print_row_col(port="/dev/serial0", baud=115200, line_timeout=0.5
     return row_col
 
 if __name__ == "__main__":
-    run_all_and_print_row_col(port="/dev/serial0", baud=115200, line_timeout=0.5)
+    run_all_and_print_row_col(port="/dev/ttyS0", baud=115200, line_timeout=0.5)
