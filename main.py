@@ -5,7 +5,7 @@ from PySide6.QtCore import QObject, QThread, Slot
 
 from GUI.lot_1.map import Map
 from GUI.lot_1.navi import MainWindow
-# import server_communication as sc
+import server_communication as sc
 import position_detection as pd
 from path_planning import PathPlanning
 
@@ -31,7 +31,7 @@ class Worker(QObject):
         1초마다 "!"를 출력합니다.
         """
         while self.running:
-            self.pos = pd.run_all_and_print_row_col()
+            self.pos = (self.pos[0]-2, self.pos[1])     # pd.run_all_and_print_row_col()
             Path.recommend_parking(Parking_lot.copy_map, self.pos, (navi.type, navi.near))
             Path.astar(Parking_lot.copy_map, self.pos, Path.goal)
 
@@ -51,6 +51,13 @@ if __name__ == "__main__":
 
     # 목적지, 경로 계산 함수 및 경로 리스트를 갖는 class 선언
     Path = PathPlanning()
+
+    # 서버로부터 점유 구역 정보 수신
+    srv = sc.Server("3.39.40.177", 5000)
+    srv.receive_once()          # 문자열 수신
+    srv.parse_coordinates()     # 파싱
+    for (row,col) in srv.Non_empty_spot:
+        Parking_lot.copy_map[row][col] = 1
 
     # Qt 애플리케이션 인스턴스 생성
     app = QApplication(sys.argv)
