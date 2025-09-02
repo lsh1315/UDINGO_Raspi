@@ -9,13 +9,6 @@ import server_communication as sc
 import position_detection as pd
 from path_planning import PathPlanning
 
-global user_preference
-global position 
-
-# 초기 위치 (입구)
-pos_row = 48
-pos_col = 24
-
 class Worker(QObject):
     """
     GUI와 독립적으로 백그라운드에서 실행될 작업자 클래스.
@@ -23,7 +16,7 @@ class Worker(QObject):
     def __init__(self):
         super().__init__()
         self.running = True
-        self.pos = (pos_row,pos_col)
+        self.pos = (48, 24)     # 초기 위치 (입구)
 
     @Slot()
     def run(self):
@@ -33,7 +26,7 @@ class Worker(QObject):
         """
         while self.running:
             # 현재 위치 업데이트
-            self.pos = pd.run_all_and_print_row_col()    # (self.pos[0]-2, self.pos[1])
+            self.pos = pd.run_all_and_print_row_col()   # pd.run_all_and_print_row_col()    # (self.pos[0]-2, self.pos[1])
 
             # 점유 정보 서버로 부터 수신
             srv.receive_once()          # 문자열 수신
@@ -48,7 +41,7 @@ class Worker(QObject):
             navi.pos_x = navi.transfrom_col2x(self.pos[1]) - 65  # imgae offset
             navi.pos_y = navi.transfrom_row2y(self.pos[0]) - 65
             navi.path = navi.transform_points(Path.path)
-            time.sleep(1)
+            time.sleep(0.2)
 
     def car_red_appear(self, non_empty_list):
         for (row,col) in non_empty_list:
@@ -63,7 +56,8 @@ class Worker(QObject):
         self.running = False
 
 if __name__ == "__main__":
-    # 주차장 map 정보
+
+    # 주차장 정보 초기화
     Parking_lot = Map()
     Parking_lot.map_reset()
 
