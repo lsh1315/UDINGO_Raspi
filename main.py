@@ -32,7 +32,7 @@ class Worker(QObject):
         """
         while self.running:
             # 현재 위치 업데이트
-            self.pos = (pos_row,pos_col)    # (self.pos[0]-2, self.pos[1])     # pd.run_all_and_print_row_col()
+            self.pos = pd.run_all_and_print_row_col()    # (self.pos[0]-2, self.pos[1])     # pd.run_all_and_print_row_col()
 
             # 점유 정보 서버로 부터 수신
             srv.receive_once()          # 문자열 수신
