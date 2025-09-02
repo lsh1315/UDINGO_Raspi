@@ -12,7 +12,7 @@ from path_planning import PathPlanning
 global user_preference
 global position 
 
-pos_row = 56
+pos_row = 48
 pos_col = 24
 
 class Worker(QObject):
@@ -31,14 +31,28 @@ class Worker(QObject):
         1초마다 "!"를 출력합니다.
         """
         while self.running:
-            self.pos = pd.run_all_and_print_row_col()   # (self.pos[0]-2, self.pos[1])     # pd.run_all_and_print_row_col()
+            # 현재 위치 업데이트
+            self.pos = (pos_row,pos_col)    # (self.pos[0]-2, self.pos[1])     # pd.run_all_and_print_row_col()
+
+            # 점유 정보 서버로 부터 수신
+            srv.receive_once()          # 문자열 수신
+            srv.parse_coordinates()     # 파싱
+            for (row,col) in srv.Non_empty_spot:
+                Parking_lot.copy_map[row][col] = 1
+                if row == 17 and col == 17:
+                    navi.ui.car_red.setVisible(True)
+                elif row == 30 and col == 17:
+                    navi.ui.car_red_2.setVisible(True)
+
+            # 경로 탐색
             Path.recommend_parking(Parking_lot.copy_map, self.pos, (navi.type, navi.near))
             Path.astar(Parking_lot.copy_map, self.pos, Path.goal)
 
+            # GUI 파라미터 저장
             navi.pos_x = navi.transfrom_col2x(self.pos[1]) - 65  # imgae offset
             navi.pos_y = navi.transfrom_row2y(self.pos[0]) - 65
             navi.path = navi.transform_points(Path.path)
-            time.sleep(1)
+            time.sleep(0.2)
 
     def stop(self):
         """작업 루프를 중지시킵니다."""

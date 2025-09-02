@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'naviiGwqLu.ui'
+## Form generated from reading UI file 'naviXSpVOl.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -126,10 +126,22 @@ class Ui_MainWindow(object):
         font1.setPointSize(10)
         self.terminate.setFont(font1)
         self.terminate.setStyleSheet(u"background-color:rgb(211, 0, 0);")
+        self.car_red = QLabel(self.navi)
+        self.car_red.setObjectName(u"car_red")
+        self.car_red.setGeometry(QRect(30, 200, 141, 140))
+        self.car_red.setPixmap(QPixmap(u":/car/red_90.png"))
+        self.car_red.setScaledContents(True)
+        self.car_red_2 = QLabel(self.navi)
+        self.car_red_2.setObjectName(u"car_red_2")
+        self.car_red_2.setGeometry(QRect(30, 340, 141, 140))
+        self.car_red_2.setPixmap(QPixmap(u":/car/red_90.png"))
+        self.car_red_2.setScaledContents(True)
         self.stackedWidget.addWidget(self.navi)
         self.map.raise_()
         self.car.raise_()
         self.terminate.raise_()
+        self.car_red.raise_()
+        self.car_red_2.raise_()
 
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
 
@@ -165,5 +177,7 @@ class Ui_MainWindow(object):
         self.car.setText("")
         self.map.setText("")
         self.terminate.setText(QCoreApplication.translate("MainWindow", u"\uc885\ub8cc", None))
+        self.car_red.setText("")
+        self.car_red_2.setText("")
     # retranslateUi
 

@@ -43,6 +43,8 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.ui.stackedWidget.setCurrentIndex(0)
         self.ui.car.setVisible(False)
+        self.ui.car_red.setVisible(False)
+        self.ui.car_red_2.setVisible(False)
 
         # 현재 위치를 담을 좌표
         self.pos_x = 0
@@ -132,8 +134,8 @@ class MainWindow(QMainWindow):
         dx = self.pos_x - self.prev_x
         dy = self.pos_y - self.prev_y
 
-        if dx == 0 and dy == 0:
-            return
+        # if dx == 0 and dy == 0:
+        #     return
 
         # path에 담긴 모든 좌표에 빨간 점 출력
         self.overlay.clear()
