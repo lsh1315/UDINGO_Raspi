@@ -134,15 +134,15 @@ class MainWindow(QMainWindow):
         dx = self.pos_x - self.prev_x
         dy = self.pos_y - self.prev_y
 
-        # if dx == 0 and dy == 0:
-        #     return
-
         # path에 담긴 모든 좌표에 빨간 점 출력
         self.overlay.clear()
         self._sync_overlay_geometry()
         self.overlay.set_points(self.path)
         self.overlay.show()
         self.ui.car.move(self.pos_x, self.pos_y)
+
+        if dx == 0 and dy == 0:
+            return
 
         if dx > 0 and dy == 0:
             self.ui.car.setPixmap(QPixmap(u":/car/car_90.png"))

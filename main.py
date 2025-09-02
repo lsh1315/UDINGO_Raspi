@@ -23,6 +23,8 @@ class Worker(QObject):
         super().__init__()
         self.running = True
         self.pos = (pos_row,pos_col)
+        self.pos_arr = [(48,24),(48,24),(48,24),(48,24),(48,24),(48,24),(48,24),(40,24),(30,24),(22,24),(15,24),(11,24),(9,24),(9,24),(9,30),(9,45),(9,65),(9,85),(9,92),(9,94),(9,94),(12,94),(24,94),(35,94),(42,94),(42,104),(42,104),(42,104),(42,104),(42,104),(42,104)]
+        self.i = 0
 
     @Slot()
     def run(self):
@@ -32,17 +34,17 @@ class Worker(QObject):
         """
         while self.running:
             # 현재 위치 업데이트
-            self.pos = (pos_row,pos_col)    # (self.pos[0]-2, self.pos[1])     # pd.run_all_and_print_row_col()
+            self.pos = self.pos_arr[self.i]    # (self.pos[0]-2, self.pos[1])     # pd.run_all_and_print_row_col()
 
             # 점유 정보 서버로 부터 수신
-            srv.receive_once()          # 문자열 수신
-            srv.parse_coordinates()     # 파싱
-            for (row,col) in srv.Non_empty_spot:
-                Parking_lot.copy_map[row][col] = 1
-                if row == 17 and col == 17:
-                    navi.ui.car_red.setVisible(True)
-                elif row == 30 and col == 17:
-                    navi.ui.car_red_2.setVisible(True)
+            # srv.receive_once()          # 문자열 수신
+            # srv.parse_coordinates()     # 파싱
+            # for (row,col) in srv.Non_empty_spot:
+            #     Parking_lot.copy_map[row][col] = 1
+            #     if row == 17 and col == 17:
+            #         navi.ui.car_red.setVisible(True)
+            #     elif row == 30 and col == 17:
+            #         navi.ui.car_red_2.setVisible(True)
 
             # 경로 탐색
             Path.recommend_parking(Parking_lot.copy_map, self.pos, (navi.type, navi.near))
@@ -52,7 +54,12 @@ class Worker(QObject):
             navi.pos_x = navi.transfrom_col2x(self.pos[1]) - 65  # imgae offset
             navi.pos_y = navi.transfrom_row2y(self.pos[0]) - 65
             navi.path = navi.transform_points(Path.path)
-            time.sleep(0.2)
+            time.sleep(1)
+
+            if self.i >= len(self.pos_arr) - 1:
+                self.i = 0
+            else:
+                self.i += 1
 
     def stop(self):
         """작업 루프를 중지시킵니다."""
@@ -67,11 +74,11 @@ if __name__ == "__main__":
     Path = PathPlanning()
 
     # 서버로부터 점유 구역 정보 수신
-    srv = sc.Server("3.39.40.177", 5000)
-    srv.receive_once()          # 문자열 수신
-    srv.parse_coordinates()     # 파싱
-    for (row,col) in srv.Non_empty_spot:
-        Parking_lot.copy_map[row][col] = 1
+    # srv = sc.Server("3.39.40.177", 5000)
+    # srv.receive_once()          # 문자열 수신
+    # srv.parse_coordinates()     # 파싱
+    # for (row,col) in srv.Non_empty_spot:
+    #     Parking_lot.copy_map[row][col] = 1
 
     # Qt 애플리케이션 인스턴스 생성
     app = QApplication(sys.argv)
