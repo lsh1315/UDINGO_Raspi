@@ -1,0 +1,4 @@
+../Core/Src/deca_timestamps.c:28:10:get_tx_timestamp_u64	2
+../Core/Src/deca_timestamps.c:52:10:get_rx_timestamp_u64	2
+../Core/Src/deca_timestamps.c:78:6:final_msg_set_ts	2
+../Core/Src/deca_timestamps.c:100:6:final_msg_get_ts	2

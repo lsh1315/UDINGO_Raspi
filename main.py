@@ -46,10 +46,6 @@ class Worker(QObject):
     def car_red_appear(self, non_empty_list):
         for (row,col) in non_empty_list:
                 Parking_lot.copy_map[row][col] = 1
-                if row == 17 and col == 17:
-                    navi.ui.car_red.setVisible(True)
-                elif row == 30 and col == 17:
-                    navi.ui.car_red_2.setVisible(True)
 
     def stop(self):
         """작업 루프를 중지시킵니다."""
@@ -64,11 +60,8 @@ if __name__ == "__main__":
     # 목적지, 경로 계산 함수 및 경로 리스트를 갖는 class 선언
     Path = PathPlanning()
 
-    # 서버로부터 점유 구역 정보 수신
+    # 서버 연결
     srv = sc.Server("3.39.40.177", 5000)
-    srv.receive_once()          # 문자열 수신
-    srv.parse_coordinates()     # 파싱
-    self.car_red_appear(srv.Non_empty_spot)     # 점유 정보 업데이트
 
     # Qt 애플리케이션 인스턴스 생성
     app = QApplication(sys.argv)

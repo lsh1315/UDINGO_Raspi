@@ -1,0 +1,7 @@
+../Core/Src/DWM_functions.c:29:15:deca_sleep	16	static
+../Core/Src/DWM_functions.c:43:6:port_set_dw1000_slowrate	8	static
+../Core/Src/DWM_functions.c:64:6:port_set_dw1000_fastrate	8	static
+../Core/Src/DWM_functions.c:107:5:writetospi	32	dynamic
+../Core/Src/DWM_functions.c:206:5:readfromspi	32	dynamic
+../Core/Src/DWM_functions.c:255:6:usleep_1	24	static,ignoring_inline_asm
+../Core/Src/DWM_functions.c:272:6:deca_reset	24	static

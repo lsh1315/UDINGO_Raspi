@@ -1,0 +1,4 @@
+../Core/Src/position_detection.c:9:5:trilaterate	512	static
+../Core/Src/position_detection.c:89:5:receive_dwm1000_distances	48	static
+../Core/Src/position_detection.c:107:6:correction	24	static
+../Core/Src/position_detection.c:155:5:update_current_position	40	static
